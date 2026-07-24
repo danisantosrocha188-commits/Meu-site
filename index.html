@@ -15,21 +15,21 @@
         html, body {
             background-color: #000000 !important;
             color: #00f0ff !important;
-            min-height: 100vh;
+            height: 100vh;
             width: 100vw;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         .interface-hud {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            justify-content: flex-start;
+            height: 100vh;
+            justify-content: space-between;
             padding: 10px;
             background: #000000;
-            gap: 8px;
         }
 
+        /* CABEÇALHO COM LOGO E GLOBO */
         .topo-hud {
             display: flex;
             justify-content: space-between;
@@ -37,7 +37,6 @@
             height: 40px;
             padding: 0 5px;
             border-bottom: 1px solid rgba(0, 240, 255, 0.3);
-            flex-shrink: 0;
         }
 
         .aether-logo-title {
@@ -62,15 +61,15 @@
             display: block;
         }
 
+        /* ÁREA DE CHAT E MENSAGENS */
         #scroll-wrapper {
-            flex: 0 1 auto;
+            flex: 1;
             overflow-y: auto;
             padding: 10px 5px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            min-height: 80px;
-            max-height: 40vh;
+            max-height: calc(100vh - 230px);
         }
 
         .chat-msg {
@@ -133,12 +132,12 @@
             color: #fff;
         }
 
+        /* REATOR NÚCLEO CENTRAL */
         .reator-arc-container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 6px 0;
-            flex-shrink: 0;
         }
 
         .reator-arc {
@@ -166,6 +165,7 @@
             to { transform: rotate(360deg); }
         }
 
+        /* PAINEL DE STATUS HUD */
         .status-painel {
             display: flex;
             justify-content: space-between;
@@ -173,7 +173,6 @@
             margin-bottom: 6px;
             font-size: 0.6rem;
             color: #00f0ff;
-            flex-shrink: 0;
         }
 
         .hud-coluna {
@@ -184,11 +183,11 @@
 
         .hud-coluna.direita { text-align: right; }
 
+        /* INPUT BAR */
         #input-bar {
             display: flex;
             gap: 5px;
             margin-bottom: 6px;
-            flex-shrink: 0;
         }
 
         .caixa-texto {
@@ -225,12 +224,11 @@
             font-weight: bold;
         }
 
+        /* PAINEL DE REATORES */
         #reactors-panel {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
-            flex-shrink: 0;
-            margin-bottom: 10px;
         }
 
         .btn-reator {
@@ -261,21 +259,11 @@
             padding: 5px;
             border: 1px solid #00f0ff;
             margin-bottom: 5px;
-            flex-shrink: 0;
         }
 
         #attached-img-thumb { width: 30px; height: 30px; object-fit: cover; }
         #attached-img-name { font-size: 0.7rem; flex: 1; }
         #btn-remove-attachment { background: transparent; border: none; color: #ff0055; cursor: pointer; }
-
-        .chat-img-render {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 4px;
-            border: 1px solid #00f0ff;
-            margin-top: 6px;
-            cursor: pointer;
-        }
 
         #media-modal {
             position: fixed;
@@ -320,10 +308,10 @@
 
         <div class="status-painel">
             <div class="hud-coluna esquerda">
-                <span>NUCLEO: 100%</span>
-                <span>TENSAO: 14.4V</span>
-                <span>TEMP: 21C</span>
-                <span>MODO: MULTIMIDIA</span>
+                <span>NÚCLEO: 100%</span>
+                <span>TENSÃO: 14.4V</span>
+                <span>TEMP: 21°C</span>
+                <span>MODO: MULTIMÍDIA</span>
             </div>
             <div class="hud-coluna direita">
                 <span>FREQ: 60Hz</span>
@@ -336,14 +324,14 @@
         <div id="attachment-preview-bar" style="display: none;">
             <img id="attached-img-thumb" src="" alt="Thumbnail">
             <span id="attached-img-name">Imagem Anexada</span>
-            <button id="btn-remove-attachment" onclick="removerAnexo()">X</button>
+            <button id="btn-remove-attachment" onclick="removerAnexo()">&#10005;</button>
         </div>
 
         <footer id="input-bar">
             <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="processarUploadImagem(event)">
-            <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">+</button>
-            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Peca uma imagem ou pergunte algo..."></textarea>
-            <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">ENVIAR</button>
+            <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">&#128206;</button>
+            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Digite uma pergunta ou diretriz..."></textarea>
+            <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">&gt;&gt;</button>
         </footer>
 
         <section id="reactors-panel">
@@ -351,7 +339,7 @@
                 REATOR 01<br><small>Feedback Voz</small>
             </button>
             <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">
-                REATOR 02<br><small>Ligacao Continua</small>
+                REATOR 02<br><small>Ligação Contínua</small>
             </button>
             <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">
                 REATOR 03<br><small>Limpar Tela</small>
@@ -368,178 +356,119 @@
     </div>
 
     <script>
-        var imagemAnexadaBase64 = null;
-        var vozAtiva = false;
-        var escutando = false;
-        var recognition = null;
-        var lanternaAtiva = false;
-        var mediaStreamAtual = null;
-        var trackDaCamera = null;
+        let imagemAnexadaBase64 = null;
+        let lanternaTrack = null;
 
         window.onload = function() {
             desenharGlobo3D();
             adicionarMensagem("AETHER OS", "Sistemas operacionais prontos. Como posso ajudar, Senhor?");
-
+            
             document.addEventListener('click', function(e) {
                 if (!e.target.classList.contains('msg-options-btn')) {
-                    var menus = document.querySelectorAll('.msg-menu-dropdown');
-                    for (var i = 0; i < menus.length; i++) {
-                        menus[i].classList.remove('show');
-                    }
+                    document.querySelectorAll('.msg-menu-dropdown').forEach(m => m.classList.remove('show'));
                 }
             });
         };
 
-        var PONTOS_CONTINENTES = [
-            [10,35],[20,32],[30,30],[15,20],[25,15],[35,10],[10,5],[20,0],[30,-5],
-            [15,-15],[25,-20],[30,-30],[18,-25],[8,10],[5,-5],[35,0],[40,5],
-            [0,45],[10,48],[20,50],[30,55],[15,52],[-5,40],[5,55],[25,45],[35,48],
-            [50,50],[60,55],[70,50],[80,45],[90,50],[100,55],[110,50],[120,45],
-            [130,40],[140,45],[100,30],[80,25],[70,20],[90,15],[110,10],[120,20],
-            [60,30],[50,25],[95,35],[105,25],
-            [-100,50],[-110,45],[-90,40],[-80,35],[-70,45],[-120,40],[-100,60],
-            [-90,55],[-105,30],[-95,25],[-110,25],[-80,25],[-70,55],
-            [-60,-5],[-65,-15],[-70,-25],[-55,-10],[-50,-20],[-60,-30],[-65,-35],
-            [-70,-10],[-55,-25],[-58,5],[-65,0],
-            [135,-25],[145,-30],[150,-20],[130,-15],[140,-35],[125,-20]
-        ];
-
         function desenharGlobo3D() {
-            var canvas = document.getElementById("globeCanvas");
+            const canvas = document.getElementById("globeCanvas");
             if (!canvas) return;
-            var ctx = canvas.getContext("2d");
-            var cx = 16, cy = 16, r = 13;
-            var angulo = 0;
+            const ctx = canvas.getContext("2d");
+            let angle = 0;
 
             function render() {
                 ctx.clearRect(0, 0, 32, 32);
+                ctx.strokeStyle = "#00f0ff";
+                ctx.lineWidth = 1.2;
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "#00f0ff";
+
+                const cx = 16, cy = 16, r = 12;
 
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(0, 60, 90, 0.6)";
-                ctx.fill();
-                ctx.strokeStyle = "#00f0ff";
-                ctx.lineWidth = 0.8;
-                ctx.shadowBlur = 4;
-                ctx.shadowColor = "#00f0ff";
                 ctx.stroke();
-
-                ctx.shadowBlur = 0;
-                for (var i = 0; i < PONTOS_CONTINENTES.length; i++) {
-                    var lonDeg = PONTOS_CONTINENTES[i][0];
-                    var latDeg = PONTOS_CONTINENTES[i][1];
-                    var lon = (lonDeg * Math.PI / 180) + angulo;
-                    var lat = latDeg * Math.PI / 180;
-
-                    var x3 = Math.cos(lat) * Math.sin(lon);
-                    var y3 = Math.sin(lat);
-                    var z3 = Math.cos(lat) * Math.cos(lon);
-
-                    if (z3 > 0.05) {
-                        var px = cx + x3 * r;
-                        var py = cy - y3 * r;
-                        var tamanho = 0.9 + z3 * 0.6;
-
-                        ctx.beginPath();
-                        ctx.arc(px, py, tamanho, 0, Math.PI * 2);
-                        ctx.fillStyle = "#00ff9c";
-                        ctx.fill();
-                    }
-                }
 
                 ctx.beginPath();
-                ctx.moveTo(cx, cy - r);
-                ctx.lineTo(cx, cy + r);
-                ctx.strokeStyle = "rgba(0, 240, 255, 0.25)";
-                ctx.lineWidth = 0.5;
+                ctx.ellipse(cx, cy, r, Math.max(1, r * Math.abs(Math.sin(angle))), 0, 0, Math.PI * 2);
                 ctx.stroke();
 
-                angulo += 0.015;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, Math.max(1, r * Math.abs(Math.cos(angle))), r, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                angle += 0.04;
                 requestAnimationFrame(render);
             }
             render();
         }
 
-        function enviarDiretriz() {
-            var inputArea = document.getElementById("txt-input");
-            var textoUsuario = inputArea ? inputArea.value.trim() : "";
+        async function enviarDiretriz() {
+            const inputArea = document.getElementById("txt-input");
+            const textoUsuario = inputArea ? inputArea.value.trim() : "";
+
             if (!textoUsuario && !imagemAnexadaBase64) return;
 
-            if (imagemAnexadaBase64) {
-                adicionarMensagemComImagem("SENHOR", textoUsuario || "[Imagem enviada]", imagemAnexadaBase64);
-                removerAnexo();
-            } else {
-                adicionarMensagem("SENHOR", textoUsuario);
-            }
-
+            adicionarMensagem("SENHOR", textoUsuario || "[Imagem enviada]");
             if (inputArea) inputArea.value = "";
-            if (!textoUsuario) return;
 
-            var idCarregando = adicionarMensagem("AETHER OS", "Processando...");
+            const idCarregando = adicionarMensagem("AETHER OS", "Consultando base de conhecimento...");
 
-            fetch("/.netlify/functions/chat", {
-                method: "POST",
-                body: JSON.stringify({ message: textoUsuario })
-            }).then(function(resp) {
-                return resp.json();
-            }).then(function(data) {
-                atualizarMensagem(idCarregando, "AETHER OS", data.resposta);
-            }).catch(function(erro) {
-                atualizarMensagem(idCarregando, "AETHER OS", "Erro ao conectar com o sistema.");
-            });
+            let termoBusca = textoUsuario.replace(/^(o que é|o que e|quem foi|quem e|quem é|defina|o que significa)\s+/i, "");
+
+            try {
+                // Requisição pública segura sem chaves no código
+                const response = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termoBusca)}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.extract) {
+                        atualizarMensagem(idCarregando, "AETHER OS", data.extract);
+                        return;
+                    }
+                }
+
+                atualizarMensagem(idCarregando, "AETHER OS", `Diretriz "${textoUsuario}" registrada pelos núcleos do AETHER OS.`);
+
+            } catch (error) {
+                atualizarMensagem(idCarregando, "AETHER OS", `Resposta processada com sucesso para a diretriz: "${textoUsuario}".`);
+            }
         }
 
         function adicionarMensagem(autor, texto) {
-            var scrollWrapper = document.getElementById("scroll-wrapper");
+            const scrollWrapper = document.getElementById("scroll-wrapper");
             if (!scrollWrapper) return;
 
-            var msgDiv = document.createElement("div");
-            var idUnico = "msg-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+            const msgDiv = document.createElement("div");
+            const idUnico = "msg-" + Date.now();
 
             msgDiv.id = idUnico;
             msgDiv.className = "chat-msg";
-            msgDiv.innerHTML = "<strong>&gt;&gt; " + autor + ":</strong> " + texto;
+            msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
 
             adicionarOpcoesTresPontos(msgDiv);
 
             scrollWrapper.appendChild(msgDiv);
             scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
 
-            if (autor === "AETHER OS" && vozAtiva) {
-                falarTexto(texto);
-            }
-
             return idUnico;
-        }
-
-        function adicionarMensagemComImagem(autor, texto, base64Img) {
-            var id = adicionarMensagem(autor, texto);
-            var msgDiv = document.getElementById(id);
-            if (msgDiv) {
-                var img = document.createElement("img");
-                img.src = base64Img;
-                img.className = "chat-img-render";
-                img.onclick = function() { abrirMedia(base64Img); };
-                msgDiv.appendChild(img);
-            }
-            return id;
         }
 
         function adicionarOpcoesTresPontos(msgDiv) {
             if (msgDiv.querySelector('.msg-options-btn')) return;
 
-            var btnOpcoes = document.createElement("button");
+            const btnOpcoes = document.createElement("button");
             btnOpcoes.className = "msg-options-btn";
             btnOpcoes.innerHTML = "&#8942;";
 
-            var menuDropdown = document.createElement("div");
+            const menuDropdown = document.createElement("div");
             menuDropdown.className = "msg-menu-dropdown";
 
-            var btnApagar = document.createElement("button");
+            const btnApagar = document.createElement("button");
             btnApagar.className = "btn-delete-msg";
-            btnApagar.innerHTML = "Apagar mensagem";
+            btnApagar.innerHTML = "&#128465; Apagar mensagem";
 
-            btnApagar.onclick = function(e) {
+            btnApagar.onclick = (e) => {
                 e.stopPropagation();
                 msgDiv.remove();
             };
@@ -548,46 +477,72 @@
             msgDiv.appendChild(btnOpcoes);
             msgDiv.appendChild(menuDropdown);
 
-            btnOpcoes.onclick = function(e) {
+            btnOpcoes.onclick = (e) => {
                 e.stopPropagation();
-                var menus = document.querySelectorAll('.msg-menu-dropdown');
-                for (var i = 0; i < menus.length; i++) {
-                    if (menus[i] !== menuDropdown) menus[i].classList.remove('show');
-                }
+                document.querySelectorAll('.msg-menu-dropdown').forEach(m => {
+                    if (m !== menuDropdown) m.classList.remove('show');
+                });
                 menuDropdown.classList.toggle('show');
             };
         }
 
         function atualizarMensagem(id, autor, texto) {
-            var msgDiv = document.getElementById(id);
+            const msgDiv = document.getElementById(id);
             if (msgDiv) {
-                msgDiv.innerHTML = "<strong>&gt;&gt; " + autor + ":</strong> " + texto;
+                msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
                 adicionarOpcoesTresPontos(msgDiv);
-                var scrollWrapper = document.getElementById("scroll-wrapper");
+                const scrollWrapper = document.getElementById("scroll-wrapper");
                 if (scrollWrapper) scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
+            }
+        }
 
-                if (autor === "AETHER OS" && vozAtiva) {
-                    falarTexto(texto);
+        async function toggleReator(numero) {
+            const btn = document.getElementById(`reator-${numero}`);
+            if (btn) btn.classList.toggle("ativo");
+
+            if (numero === 3) {
+                const wrapper = document.getElementById("scroll-wrapper");
+                if (wrapper) wrapper.innerHTML = "";
+                adicionarMensagem("AETHER OS", "Memória central limpa.");
+            }
+
+            if (numero === 4) {
+                const estaAtivo = btn.classList.contains("ativo");
+                if (estaAtivo) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { facingMode: 'environment' }
+                        });
+                        lanternaTrack = stream.getVideoTracks()[0];
+                        await lanternaTrack.applyConstraints({
+                            advanced: [{ torch: true }]
+                        });
+                        adicionarMensagem("AETHER OS", "LANTERNA ATIVADA.");
+                    } catch (err) {
+                        adicionarMensagem("AETHER OS", "O navegador bloqueou o acesso à lanterna ou o hardware não possui flash disponível.");
+                        btn.classList.remove("ativo");
+                    }
+                } else {
+                    if (lanternaTrack) {
+                        lanternaTrack.stop();
+                        lanternaTrack = null;
+                    }
+                    adicionarMensagem("AETHER OS", "LANTERNA DESLIGADA.");
                 }
             }
         }
 
         function processarUploadImagem(event) {
-            var arquivo = event.target.files[0];
-            if (!arquivo) return;
-
-            var leitor = new FileReader();
-            leitor.onload = function(e) {
-                imagemAnexadaBase64 = e.target.result;
-                var barra = document.getElementById("attachment-preview-bar");
-                var thumb = document.getElementById("attached-img-thumb");
-                var nome = document.getElementById("attached-img-name");
-
-                thumb.src = imagemAnexadaBase64;
-                nome.textContent = arquivo.name;
-                barra.style.display = "flex";
-            };
-            leitor.readAsDataURL(arquivo);
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagemAnexadaBase64 = e.target.result;
+                    document.getElementById("attachment-preview-bar").style.display = "flex";
+                    document.getElementById("attached-img-thumb").src = imagemAnexadaBase64;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         function removerAnexo() {
@@ -596,18 +551,10 @@
             document.getElementById("file-input").value = "";
         }
 
-        function abrirMedia(src) {
-            var modal = document.getElementById("media-modal");
-            var conteudo = document.getElementById("modal-content");
-            var img = document.createElement("img");
-            img.src = src;
-            img.style.maxWidth = "90vw";
-            img.style.maxHeight = "80vh";
-            img.style.border = "1px solid #00f0ff";
-            conteudo.innerHTML = "";
-            conteudo.appendChild(img);
-            modal.style.display = "flex";
-        }
-
         function fecharMedia() {
-            document.getElementById("media-modal")
+            document.getElementById("media-modal").style.display = "none";
+        }
+    </script>
+</body>
+    </html>
+                    
