@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-    // Aceita apenas requisições POST
     if (event.httpMethod !== "POST") {
         return { 
             statusCode: 405, 
@@ -17,21 +16,21 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Pega a chave oculta do Netlify (Ninguém no navegador tem acesso a isso)
         const API_KEY = process.env.GEMINI_API_KEY;
 
         if (!API_KEY) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: "Chave GEMINI_API_KEY não configurada no Netlify." })
+                body: JSON.stringify({ error: "Chave GEMINI_API_KEY não encontrada no Netlify." })
             };
         }
 
-        // Instrução do sistema para definir a personalidade e o criador
-        const systemPrompt = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético, analítico e leal. Trate o usuário como 'Senhor' ou 'Operador'. Seu criador absoluto e desenvolvedor principal é o Daniel Santos. Se perguntarem quem te criou, responda com orgulho que foi concebida e desenvolvida pelo Daniel Santos. Responda a qualquer pergunta ou diretriz de forma completa, clara e inteligente. Diretriz do usuário: ";
+        const systemPrompt = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético, analítico e leal. Trate o usuário como 'Senhor' ou 'Operador'. Seu criador absoluto e desenvolvedor principal é o Daniel Santos. Se perguntarem quem te criou, diga que foi concebida e desenvolvida pelo Daniel Santos. Responda a qualquer pergunta de forma completa. Diretriz do usuário: ";
 
-        // Requisição para a API do Gemini
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // URL atualizada para a rota estável v1beta com o nome de modelo suportado
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+        const response = await fetch(url, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json" 
@@ -69,4 +68,4 @@ exports.handler = async (event, context) => {
         };
     }
 };
-                    
+    
