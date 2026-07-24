@@ -67,24 +67,28 @@
             flex-direction: column;
             gap: 12px;
             min-height: 0;
+            align-items: flex-start; /* Força tudo para a esquerda */
+            text-align: left;
         }
 
-        /* ESTILO LIMPO DA MENSAGEM (SEM BORDAS/RETÂNGULOS) */
+        /* MENSAGEM TOTALMENTE ALINHADA À ESQUERDA */
         .chat-msg {
             position: relative;
-            padding: 2px 26px 2px 0px;
-            font-size: 0.82rem;
+            width: 100%;
+            padding-right: 30px;
+            font-size: 0.8rem;
             color: #00f0ff;
-            background: transparent; /* Sem fundo */
-            border: none; /* Sem retângulo */
+            background: transparent;
+            border: none;
             word-break: break-word;
             line-height: 1.35;
             white-space: pre-wrap;
+            text-align: left;
             user-select: text;
             -webkit-user-select: text;
         }
 
-        /* Botão dos 3 pontinhos no canto direito */
+        /* Botão discreto dos 3 pontinhos */
         .msg-options-btn {
             position: absolute;
             right: 0;
@@ -92,26 +96,24 @@
             background: transparent;
             border: none;
             color: #00f0ff;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             cursor: pointer;
-            padding: 0 4px;
-            line-height: 1;
-            opacity: 0.8;
+            padding: 0 2px;
+            opacity: 0.6;
         }
 
         .msg-options-btn:hover {
             opacity: 1;
         }
 
-        /* Menu Popup para apagar */
+        /* Menu de Apagar compacto e discreto */
         .msg-menu-popup {
             display: none;
             position: absolute;
             right: 0;
-            top: 22px;
+            top: 18px;
             background: #000;
             border: 1px solid #ff0055;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
             z-index: 100;
             border-radius: 2px;
         }
@@ -124,8 +126,8 @@
             background: transparent;
             border: none;
             color: #ff0055;
-            padding: 6px 12px;
-            font-size: 0.72rem;
+            padding: 4px 8px;
+            font-size: 0.65rem;
             cursor: pointer;
             font-weight: bold;
             white-space: nowrap;
@@ -133,7 +135,7 @@
         }
 
         .btn-delete-msg:hover {
-            background: rgba(255, 0, 85, 0.25);
+            background: rgba(255, 0, 85, 0.2);
         }
 
         .painel-inferior-fixo {
@@ -487,7 +489,7 @@
             msgDiv.innerHTML = `
                 <button class="msg-options-btn" onclick="toggleMenuMsg('${idUnico}')">&#8942;</button>
                 <div class="msg-menu-popup" id="menu-${idUnico}">
-                    <button class="btn-delete-msg" onclick="deletarMensagem('${idUnico}')">&#128465; Apagar mensagem</button>
+                    <button class="btn-delete-msg" onclick="deletarMensagem('${idUnico}')">&#128465; Apagar</button>
                 </div>
                 <span class="msg-content"><strong>&gt;&gt; ${autor}:</strong> ${texto}</span>
             `;
@@ -508,7 +510,7 @@
                     msgDiv.innerHTML = `
                         <button class="msg-options-btn" onclick="toggleMenuMsg('${id}')">&#8942;</button>
                         <div class="msg-menu-popup" id="menu-${id}">
-                            <button class="btn-delete-msg" onclick="deletarMensagem('${id}')">&#128465; Apagar mensagem</button>
+                            <button class="btn-delete-msg" onclick="deletarMensagem('${id}')">&#128465; Apagar</button>
                         </div>
                         <span class="msg-content"><strong>&gt;&gt; ${autor}:</strong> ${texto}</span>
                     `;
@@ -519,5 +521,5 @@
         }
     </script>
 </body>
-                        </html>
-    
+    </html>
+                    
