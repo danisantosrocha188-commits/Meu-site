@@ -67,15 +67,14 @@
             flex-direction: column;
             gap: 12px;
             min-height: 0;
-            align-items: flex-start; /* Força tudo para a esquerda */
+            align-items: flex-start;
             text-align: left;
         }
 
-        /* MENSAGEM TOTALMENTE ALINHADA À ESQUERDA */
         .chat-msg {
             position: relative;
             width: 100%;
-            padding-right: 30px;
+            padding-right: 25px;
             font-size: 0.8rem;
             color: #00f0ff;
             background: transparent;
@@ -88,7 +87,6 @@
             -webkit-user-select: text;
         }
 
-        /* Botão discreto dos 3 pontinhos */
         .msg-options-btn {
             position: absolute;
             right: 0;
@@ -102,11 +100,8 @@
             opacity: 0.6;
         }
 
-        .msg-options-btn:hover {
-            opacity: 1;
-        }
+        .msg-options-btn:hover { opacity: 1; }
 
-        /* Menu de Apagar compacto e discreto */
         .msg-menu-popup {
             display: none;
             position: absolute;
@@ -118,9 +113,7 @@
             border-radius: 2px;
         }
 
-        .msg-menu-popup.ativo {
-            display: block;
-        }
+        .msg-menu-popup.ativo { display: block; }
 
         .btn-delete-msg {
             background: transparent;
@@ -134,9 +127,7 @@
             font-family: inherit;
         }
 
-        .btn-delete-msg:hover {
-            background: rgba(255, 0, 85, 0.2);
-        }
+        .btn-delete-msg:hover { background: rgba(255, 0, 85, 0.2); }
 
         .painel-inferior-fixo {
             display: flex;
@@ -521,5 +512,5 @@
         }
     </script>
 </body>
-    </html>
+            </html>
                     
