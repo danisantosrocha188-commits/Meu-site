@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER OS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        html, body {
+            background-color: #000000 !important;
+            color: #00f0ff !important;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .interface-hud {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: space-between;
+            padding: 10px;
+            background: #000000;
+        }
+
+        .topo-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 40px;
+            padding: 0 5px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        .aether-logo-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #00f0ff;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px #00f0ff;
+        }
+
+        .globe-container {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #globeCanvas {
+            width: 32px;
+            height: 32px;
+            display: block;
+        }
+
+        #scroll-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: calc(100vh - 230px);
+        }
+
+        .chat-msg {
+            position: relative;
+            padding: 8px 35px 8px 10px;
+            font-size: 0.85rem;
+            color: #00f0ff;
+            background: rgba(0, 240, 255, 0.03);
+            word-break: break-word;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            border-left: 2px solid #00f0ff;
+            border-radius: 2px;
+        }
+
+        .msg-options-btn {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            background: transparent;
+            border: none;
+            color: #00f0ff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.8;
+            padding: 0 4px;
+        }
+
+        .msg-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 25px;
+            right: 6px;
+            background: #050d1a;
+            border: 1px solid #ff0055;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+            z-index: 50;
+            border-radius: 4px;
+        }
+
+        .msg-menu-dropdown.show {
+            display: block;
+        }
+
+        .btn-delete-msg {
+            background: transparent;
+            color: #ff0055;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .btn-delete-msg:hover {
+            background: #ff0055;
+            color: #fff;
+        }
+
+        .reator-arc-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 6px 0;
+        }
+
+        .reator-arc {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px dashed #00f0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            animation: girarReator 12s linear infinite;
+        }
+
+        .reator-nucleo {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #00f0ff;
+            box-shadow: 0 0 20px #00f0ff;
+        }
+
+        @keyframes girarReator {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .status-painel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.6rem;
+            color: #00f0ff;
+        }
+
+        .hud-coluna {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hud-coluna.direita { text-align: right; }
+
+        #input-bar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 6px;
+        }
+
+        .caixa-texto {
+            flex: 1;
+            background: #000;
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            padding: 8px;
+            font-size: 0.75rem;
+            outline: none;
+            resize: none;
+            height: 38px;
+        }
+
+        .caixa-texto::placeholder {
+            color: rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-icone, .btn-enviar {
+            background: #000;
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            width: 40px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-enviar {
+            background: #00f0ff;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #reactors-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .btn-reator {
+            background: #000;
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            padding: 6px 2px;
+            font-size: 0.6rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn-reator.ativo {
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 8px #00f0ff;
+        }
+
+        .btn-reator small {
+            font-size: 0.5rem;
+            display: block;
+        }
+
+        #attachment-preview-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            border: 1px solid #00f0ff;
+            margin-bottom: 5px;
+        }
+
+        #attached-img-thumb { width: 30px; height: 30px; object-fit: cover; }
+        #attached-img-name { font-size: 0.7rem; flex: 1; }
+        #btn-remove-attachment { background: transparent; border: none; color: #ff0055; cursor: pointer; }
+
+        .chat-img-render {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+            border: 1px solid #00f0ff;
+            margin-top: 6px;
+            cursor: pointer;
+        }
+
+        #media-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #close-modal-btn {
+            background: #ff0055;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="interface-hud">
+        <header class="topo-hud">
+            <span class="aether-logo-title">AETHER OS</span>
+            <div class="globe-container">
+                <canvas id="globeCanvas" width="32" height="32"></canvas>
+            </div>
+        </header>
+
+        <main id="scroll-wrapper"></main>
+
+        <div class="reator-arc-container">
+            <div class="reator-arc">
+                <div class="reator-nucleo"></div>
+            </div>
+        </div>
+
+        <div class="status-painel">
+            <div class="hud-coluna esquerda">
+                <span>NÚCLEO: 100%</span>
+                <span>TENSÃO: 14.4V</span>
+                <span>TEMP: 21°C</span>
+                <span>MODO: MULTIMÍDIA</span>
+            </div>
+            <div class="hud-coluna direita">
+                <span>FREQ: 60Hz</span>
+                <span>SISTEMA: MULTI_IA</span>
+                <span>PORTAL: ATIVO</span>
+                <span>STATUS: COMPILADO</span>
+            </div>
+        </div>
+
+        <div id="attachment-preview-bar" style="display: none;">
+            <img id="attached-img-thumb" src="" alt="Thumbnail">
+            <span id="attached-img-name">Imagem Anexada</span>
+            <button id="btn-remove-attachment" onclick="removerAnexo()">&#10005;</button>
+        </div>
+
+        <footer id="input-bar">
+            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="processarUploadImagem(event)">
+            <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">&#128206;</button>
+            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Peça uma imagem ou pergunte algo..."></textarea>
+            <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">&gt;&gt;</button>
+        </footer>
+
+        <section id="reactors-panel">
+            <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">
+                REATOR 01<br><small>Feedback Voz</small>
+            </button>
+            <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">
+                REATOR 02<br><small>Ligação Contínua</small>
+            </button>
+            <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">
+                REATOR 03<br><small>Limpar Tela</small>
+            </button>
+            <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">
+                REATOR 04<br><small>Flash Fast</small>
+            </button>
+        </section>
+    </div>
+
+    <div id="media-modal" onclick="fecharMedia()" style="display: none;">
+        <button id="close-modal-btn" onclick="fecharMedia()">FECHAR [X]</button>
+        <div id="modal-content" onclick="event.stopPropagation()"></div>
+    </div>
+
+    <script>
+        let imagemAnexadaBase64 = null;
+        let vozAtiva = false;
+        let escutando = false;
+        let recognition = null;
+        let lanternaAtiva = false;
+        let mediaStreamAtual = null;
+        let trackDaCamera = null;
+
+        window.onload = function() {
+            desenharGlobo3D();
+            adicionarMensagem("AETHER OS", "Sistemas operacionais prontos. Como posso ajudar, Senhor?");
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('msg-options-btn')) {
+                    document.querySelectorAll('.msg-menu-dropdown').forEach(m => m.classList.remove('show'));
+                }
+            });
+        };
+
+        const PONTOS_CONTINENTES = [
+            [10,35],[20,32],[30,30],[15,20],[25,15],[35,10],[10,5],[20,0],[30,-5],
+            [15,-15],[25,-20],[30,-30],[18,-25],[8,10],[5,-5],[35,0],[40,5],
+            [0,45],[10,48],[20,50],[30,55],[15,52],[-5,40],[5,55],[25,45],[35,48],
+            [50,50],[60,55],[70,50],[80,45],[90,50],[100,55],[110,50],[120,45],
+            [130,40],[140,45],[100,30],[80,25],[70,20],[90,15],[110,10],[120,20],
+            [60,30],[50,25],[95,35],[105,25],
+            [-100,50],[-110,45],[-90,40],[-80,35],[-70,45],[-120,40],[-100,60],
+            [-90,55],[-105,30],[-95,25],[-110,25],[-80,25],[-70,55],
+            [-60,-5],[-65,-15],[-70,-25],[-55,-10],[-50,-20],[-60,-30],[-65,-35],
+            [-70,-10],[-55,-25],[-58,5],[-65,0],
+            [135,-25],[145,-30],[150,-20],[130,-15],[140,-35],[125,-20]
+        ];
+
+        function desenharGlobo3D() {
+            const canvas = document.getElementById("globeCanvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            const cx = 16, cy = 16, r = 13;
+            let angulo = 0;
+
+            function render() {
+                ctx.clearRect(0, 0, 32, 32);
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(0, 60, 90, 0.6)";
+                ctx.fill();
+                ctx.strokeStyle = "#00f0ff";
+                ctx.lineWidth = 0.8;
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "#00f0ff";
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+                for (const [lonDeg, latDeg] of PONTOS_CONTINENTES) {
+                    const lon = (lonDeg * Math.PI / 180) + angulo;
+                    const lat = latDeg * Math.PI / 180;
+
+                    const x3 = Math.cos(lat) * Math.sin(lon);
+                    const y3 = Math.sin(lat);
+                    const z3 = Math.cos(lat) * Math.cos(lon);
+
+                    if (z3 > 0.05) {
+                        const px = cx + x3 * r;
+                        const py = cy - y3 * r;
+                        const tamanho = 0.9 + z3 * 0.6;
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, tamanho, 0, Math.PI * 2);
+                        ctx.fillStyle = "#00ff9c";
+                        ctx.fill();
+                    }
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - r);
+                ctx.lineTo(cx, cy + r);
+                ctx.strokeStyle = "rgba(0, 240, 255, 0.25)";
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+
+                angulo += 0.015;
+                requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        async function enviarDiretriz() {
+            const inputArea = document.getElementById("txt-input");
+            const textoUsuario = inputArea ? inputArea.value.trim() : "";
+            if (!textoUsuario && !imagemAnexadaBase64) return;
+
+            if (imagemAnexadaBase64) {
+                adicionarMensagemComImagem("SENHOR", textoUsuario || "[Imagem enviada]", imagemAnexadaBase64);
+                removerAnexo();
+            } else {
+                adicionarMensagem("SENHOR", textoUsuario);
+            }
+
+            if (inputArea) inputArea.value = "";
+            if (!textoUsuario) return;
+
+            const idCarregando = adicionarMensagem("AETHER OS", "Processando...");
+
+            try {
+                const resp = await fetch("/.netlify/functions/chat", {
+                    method: "POST",
+                    body: JSON.stringify({ message: textoUsuario })
+                });
+                const data = await resp.json();
+                atualizarMensagem(idCarregando, "AETHER OS", data.resposta);
+            } catch (erro) {
+                atualizarMensagem(idCarregando, "AETHER OS", "Erro ao conectar com o sistema.");
+            }
+        }
+
+        function adicionarMensagem(autor, texto) {
+            const scrollWrapper = document.getElementById("scroll-wrapper");
+            if (!scrollWrapper) return;
+
+            const msgDiv = document.createElement("div");
+            const idUnico = "msg-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+
+            msgDiv.id = idUnico;
+            msgDiv.className = "chat-msg";
+            msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
+
+            adicionarOpcoesTresPontos(msgDiv);
+
+            scrollWrapper.appendChild(msgDiv);
+            scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
+
+            if (autor === "AETHER OS" && vozAtiva) {
+                falarTexto(texto);
+            }
+
+            return idUnico;
+        }
+
+        function adicionarMensagemComImagem(autor, texto, base64Img) {
+            const id = adicionarMensagem(autor, texto);
+            const msgDiv = document.getElementById(id);
+            if (msgDiv) {
+                const img = document.createElement("img");
+                img.src = base64Img;
+                img.className = "chat-img-render";
+                img.onclick = () => abrirMedia(base64Img);
+                msgDiv.appendChild(img);
+            }
+            return id;
+        }
+
+        function adicionarOpcoesTresPontos(msgDiv) {
+            if (msgDiv.querySelector('.msg-options-btn')) return;
+
+            const btnOpcoes = document.createElement("button");
+            btnOpcoes.className = "msg-options-btn";
+            btnOpcoes.innerHTML = "&#8942;";
+
+            const menuDropdown = document.createElement("div");
+            menuDropdown.className = "msg-menu-dropdown";
+
+            const btnApagar = document.createElement("button");
+            btnApagar.className = "btn-delete-msg";
+            btnApagar.innerHTML = "&#128465; Apagar mensagem";
+
+            btnApagar.onclick = (e) => {
+                e.stopPropagation();
+                msgDiv.remove();
+            };
+
+            menuDropdown.appendChild(btnApagar);
+            msgDiv.appendChild(btnOpcoes);
+            msgDiv.appendChild(menuDropdown);
+
+            btnOpcoes.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.msg-menu-dropdown').forEach(m => {
+                    if (m !== menuDropdown) m.classList.remove('show');
+                });
+                menuDropdown.classList.toggle('show');
+            };
+        }
+
+        function atualizarMensagem(id, autor, texto) {
+            const msgDiv = document.getElementById(id);
+            if (msgDiv) {
+                msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
+                adicionarOpcoesTresPontos(msgDiv);
+                const scrollWrapper = document.getElementById("scroll-wrapper");
+                if (scrollWrapper) scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
+
+                if (autor === "AETHER OS" && vozAtiva) {
+                    falarTexto(texto);
+                }
+            }
+        }
+
+        function processarUploadImagem(event) {
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                imagemAnexadaBase64 = e.target.result;
+                const barra = document.getElementById("attachment-preview-bar");
+                const thumb = document.getElementById("attached-img-thumb");
+                const nome = document.getElementById("attached-img-name");
+
+                thumb.src = imagemAnexadaBase64;
+                nome.textContent = arquivo.name;
+                barra.style.display = "flex";
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function removerAnexo() {
+            imagemAnexadaBase64 = null;
+            document.getElementById("attachment-preview-bar").style.display = "none";
+            document.getElementById("file-input").value = "";
+        }
+
+        function abrirMedia(src) {
+            const modal = document.getElementById("media-modal");
+            const conteudo = document.getElementById("modal-content");
+            conteudo.innerHTML = `<img src="${src}" style="max-width:90vw; max-height:80vh; border:1px solid #00f0ff;">`;
+            modal.style.display = "flex";
+        }
+
+        function fecharMedia() {
+            document.getElementById("media-modal").style.display = "none";
+        }
+
+        function falarTexto(texto) {
+            if (!('speechSynthesis' in window)) return;
+            const textoLimpo = texto.replace(/<[^>]*>/g, "");
+            const fala = new SpeechSynthesisUtterance(textoLimpo);
+            fala.lang = "pt-BR";
+            speechSynthesis.cancel();
+            speechSynthesis.speak(fala);
+        }
+
+        function toggleEscutaContinua() {
+            const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognitionAPI) {
+                adicionarMensagem("AETHER OS", "Reconhecimento de voz não é suportado n
