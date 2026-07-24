@@ -15,18 +15,19 @@
         html, body {
             background-color: #000000 !important;
             color: #00f0ff !important;
-            height: 100vh;
+            min-height: 100vh;
             width: 100vw;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .interface-hud {
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            justify-content: space-between;
+            min-height: 100vh;
+            justify-content: flex-start;
             padding: 10px;
             background: #000000;
+            gap: 8px;
         }
 
         .topo-hud {
@@ -36,6 +37,7 @@
             height: 40px;
             padding: 0 5px;
             border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            flex-shrink: 0;
         }
 
         .aether-logo-title {
@@ -61,13 +63,14 @@
         }
 
         #scroll-wrapper {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
             padding: 10px 5px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: calc(100vh - 230px);
+            min-height: 150px;
+            max-height: 45vh;
         }
 
         .chat-msg {
@@ -135,6 +138,7 @@
             justify-content: center;
             align-items: center;
             margin: 6px 0;
+            flex-shrink: 0;
         }
 
         .reator-arc {
@@ -169,6 +173,7 @@
             margin-bottom: 6px;
             font-size: 0.6rem;
             color: #00f0ff;
+            flex-shrink: 0;
         }
 
         .hud-coluna {
@@ -183,6 +188,7 @@
             display: flex;
             gap: 5px;
             margin-bottom: 6px;
+            flex-shrink: 0;
         }
 
         .caixa-texto {
@@ -223,6 +229,8 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
+            flex-shrink: 0;
+            margin-bottom: 10px;
         }
 
         .btn-reator {
@@ -253,6 +261,7 @@
             padding: 5px;
             border: 1px solid #00f0ff;
             margin-bottom: 5px;
+            flex-shrink: 0;
         }
 
         #attached-img-thumb { width: 30px; height: 30px; object-fit: cover; }
@@ -601,7 +610,4 @@
             speechSynthesis.speak(fala);
         }
 
-        function toggleEscutaContinua() {
-            const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognitionAPI) {
-                adicionarMensagem("AETHER OS", "Reconhecimento de voz não é suportado n
+        function tog
