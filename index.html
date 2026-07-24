@@ -10,14 +10,14 @@
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
-            user-select: none; /* Impede a seleção de texto */
+            user-select: none;
             -webkit-user-select: none;
         }
 
         html, body {
             background-color: #000000 !important;
             color: #00f0ff !important;
-            height: 100dvh; /* Altura dinâmica para encaixar perfeitamente em telas de celular */
+            height: 100dvh;
             width: 100vw;
             overflow: hidden;
         }
@@ -31,7 +31,6 @@
             background: #000000;
         }
 
-        /* TOPO HUD */
         .topo-hud {
             display: flex;
             justify-content: space-between;
@@ -58,13 +57,8 @@
             justify-content: center;
         }
 
-        #globeCanvas {
-            width: 28px;
-            height: 28px;
-            display: block;
-        }
+        #globeCanvas { width: 28px; height: 28px; display: block; }
 
-        /* ÁREA DE CHAT FLEXÍVEL */
         #scroll-wrapper {
             flex: 1;
             overflow-y: auto;
@@ -72,7 +66,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            min-height: 0; /* Impede o estouro do container */
+            min-height: 0;
         }
 
         .chat-msg {
@@ -86,7 +80,7 @@
             white-space: pre-wrap;
             border-left: 2px solid #00f0ff;
             border-radius: 2px;
-            user-select: text; /* Permite ler/copiar mensagens do chat caso precise */
+            user-select: text;
             -webkit-user-select: text;
         }
 
@@ -100,7 +94,6 @@
             font-size: 1rem;
             cursor: pointer;
             opacity: 0.8;
-            padding: 0 4px;
         }
 
         .msg-menu-dropdown {
@@ -127,10 +120,8 @@
             cursor: pointer;
             width: 100%;
             text-align: left;
-            white-space: nowrap;
         }
 
-        /* PAINEL FIXO DE CONTROLE (INFERIOR) */
         .painel-inferior-fixo {
             display: flex;
             flex-direction: column;
@@ -140,7 +131,6 @@
             background: #000;
         }
 
-        /* REATOR CENTRAL */
         .reator-arc-container {
             display: flex;
             justify-content: center;
@@ -160,6 +150,12 @@
             animation: girarReator 12s linear infinite;
         }
 
+        .reator-arc.ouvidor {
+            border-color: #ff0055;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.8);
+            animation: girarReator 2s linear infinite;
+        }
+
         .reator-nucleo {
             width: 18px;
             height: 18px;
@@ -173,7 +169,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* PAINEL DE STATUS HUD */
         .status-painel {
             display: flex;
             justify-content: space-between;
@@ -183,19 +178,10 @@
             padding: 0 2px;
         }
 
-        .hud-coluna {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
+        .hud-coluna { display: flex; flex-direction: column; gap: 1px; }
         .hud-coluna.direita { text-align: right; }
 
-        /* BARRA DE ENTRADA */
-        #input-bar {
-            display: flex;
-            gap: 4px;
-        }
+        #input-bar { display: flex; gap: 4px; }
 
         .caixa-texto {
             flex: 1;
@@ -226,13 +212,8 @@
             font-size: 0.8rem;
         }
 
-        .btn-enviar {
-            background: #00f0ff;
-            color: #000;
-            font-weight: bold;
-        }
+        .btn-enviar { background: #00f0ff; color: #000; font-weight: bold; }
 
-        /* BOTÕES DOS REATORES */
         #reactors-panel {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -256,26 +237,12 @@
             box-shadow: 0 0 6px #00f0ff;
         }
 
-        .btn-reator small {
-            font-size: 0.45rem;
-            display: block;
-            opacity: 0.8;
-        }
-
-        #attachment-preview-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px;
-            border: 1px solid #00f0ff;
-        }
-
-        #attached-img-thumb { width: 25px; height: 25px; object-fit: cover; }
-        #attached-img-name { font-size: 0.65rem; flex: 1; }
-        #btn-remove-attachment { background: transparent; border: none; color: #ff0055; cursor: pointer; }
+        .btn-reator small { font-size: 0.45rem; display: block; opacity: 0.8; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <div class="interface-hud">
+<body oncontextmenu="return false;">
+
+    <div class="interface-hud">
         <header class="topo-hud">
             <span class="aether-logo-title">AETHER OS</span>
             <div class="globe-container">
@@ -287,7 +254,7 @@
 
         <div class="painel-inferior-fixo">
             <div class="reator-arc-container">
-                <div class="reator-arc">
+                <div class="reator-arc" id="reator-visual">
                     <div class="reator-nucleo"></div>
                 </div>
             </div>
@@ -307,14 +274,8 @@
                 </div>
             </div>
 
-            <div id="attachment-preview-bar" style="display: none;">
-                <img id="attached-img-thumb" src="" alt="Thumbnail">
-                <span id="attached-img-name">Imagem Anexada</span>
-                <button id="btn-remove-attachment" onclick="removerAnexo()">&#10005;</button>
-            </div>
-
             <footer id="input-bar">
-                <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="processarUploadImagem(event)">
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
                 <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">&#128206;</button>
                 <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Digite uma pergunta ou diretriz..."></textarea>
                 <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">&gt;&gt;</button>
@@ -338,7 +299,7 @@
     </div>
 
     <script>
-        // PROTEÇÃO CONTRA INSPEÇÃO E ATALHOS DE DESENVOLVEDOR
+        // Trava simples de atalhos de desenvolvedor
         document.onkeydown = function(e) {
             if (e.keyCode == 123 || 
                (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) ||
@@ -347,18 +308,15 @@
             }
         };
 
-        let imagemAnexadaBase64 = null;
+        let ligacaoContinuaAtiva = false;
+        let vozFeedbackAtiva = false;
+        let reativoVoz = null;
         let lanternaTrack = null;
 
         window.onload = function() {
             desenharGlobo3D();
             adicionarMensagem("AETHER OS", "Sistemas operacionais prontos. Como posso ajudar, Senhor?");
-            
-            document.addEventListener('click', function(e) {
-                if (!e.target.classList.contains('msg-options-btn')) {
-                    document.querySelectorAll('.msg-menu-dropdown').forEach(m => m.classList.remove('show'));
-                }
-            });
+            inicializarReconhecimentoVoz();
         };
 
         function desenharGlobo3D() {
@@ -371,9 +329,6 @@
                 ctx.clearRect(0, 0, 28, 28);
                 ctx.strokeStyle = "#00f0ff";
                 ctx.lineWidth = 1.2;
-                ctx.shadowBlur = 4;
-                ctx.shadowColor = "#00f0ff";
-
                 const cx = 14, cy = 14, r = 10;
 
                 ctx.beginPath();
@@ -384,44 +339,136 @@
                 ctx.ellipse(cx, cy, r, Math.max(1, r * Math.abs(Math.sin(angle))), 0, 0, Math.PI * 2);
                 ctx.stroke();
 
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, Math.max(1, r * Math.abs(Math.cos(angle))), r, 0, 0, Math.PI * 2);
-                ctx.stroke();
-
                 angle += 0.04;
                 requestAnimationFrame(render);
             }
             render();
         }
 
-        async function enviarDiretriz() {
+        async function enviarDiretriz(textoDireto = null) {
             const inputArea = document.getElementById("txt-input");
-            const textoUsuario = inputArea ? inputArea.value.trim() : "";
+            const textoUsuario = textoDireto || (inputArea ? inputArea.value.trim() : "");
 
-            if (!textoUsuario && !imagemAnexadaBase64) return;
+            if (!textoUsuario) return;
 
-            adicionarMensagem("SENHOR", textoUsuario || "[Imagem enviada]");
-            if (inputArea) inputArea.value = "";
+            adicionarMensagem("SENHOR", textoUsuario);
+            if (inputArea && !textoDireto) inputArea.value = "";
 
-            const idCarregando = adicionarMensagem("AETHER OS", "Consultando base de conhecimento...");
-
-            let termoBusca = textoUsuario.replace(/^(o que é|o que e|quem foi|quem e|quem é|defina|o que significa)\s+/i, "");
+            const idCarregando = adicionarMensagem("AETHER OS", "Processando através do servidor seguro...");
 
             try {
+                // Rota do servidor Netlify/Serverless (Sua API Key fica protegida no backend)
+                const res = await fetch("/.netlify/functions/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: textoUsuario })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    atualizarMensagem(idCarregando, "AETHER OS", data.resposta);
+                    falarTexto(data.resposta);
+                } else {
+                    // Fallback usando a consulta pública para demonstração
+                    consultarWikipedia(textoUsuario, idCarregando);
+                }
+            } catch (err) {
+                consultarWikipedia(textoUsuario, idCarregando);
+            }
+        }
+
+        async function consultarWikipedia(texto, idCarregando) {
+            let termoBusca = texto.replace(/^(o que é|o que e|quem foi|quem e|quem é|defina|o que significa)\s+/i, "");
+            try {
                 const response = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termoBusca)}`);
-                
                 if (response.ok) {
                     const data = await response.json();
                     if (data.extract) {
                         atualizarMensagem(idCarregando, "AETHER OS", data.extract);
+                        falarTexto(data.extract);
                         return;
                     }
                 }
+                const msgPadrao = `Diretriz "${texto}" processada nos núcleos centrais.`;
+                atualizarMensagem(idCarregando, "AETHER OS", msgPadrao);
+                falarTexto(msgPadrao);
+            } catch (e) {
+                const msgErro = `Servidor offline. Diretriz "${texto}" armazenada em cache.`;
+                atualizarMensagem(idCarregando, "AETHER OS", msgErro);
+                falarTexto(msgErro);
+            }
+        }
 
-                atualizarMensagem(idCarregando, "AETHER OS", `Diretriz "${textoUsuario}" registrada pelos núcleos do AETHER OS.`);
+        function falarTexto(texto) {
+            if (!vozFeedbackAtiva && !ligacaoContinuaAtiva) return;
+            window.speechSynthesis.cancel();
+            const fala = new SpeechSynthesisUtterance(texto);
+            fala.lang = "pt-BR";
+            fala.onend = () => {
+                if (ligacaoContinuaAtiva && reativoVoz) {
+                    reativoVoz.start();
+                }
+            };
+            window.speechSynthesis.speak(fala);
+        }
 
-            } catch (error) {
-                atualizarMensagem(idCarregando, "AETHER OS", `Resposta processada para a diretriz: "${textoUsuario}".`);
+        function inicializarReconhecimentoVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
+
+            reativoVoz = new SpeechRecognition();
+            reativoVoz.lang = 'pt-BR';
+            reativoVoz.continuous = false;
+
+            reativoVoz.onstart = () => {
+                document.getElementById("reator-visual").classList.add("ouvidor");
+            };
+
+            reativoVoz.onend = () => {
+                document.getElementById("reator-visual").classList.remove("ouvidor");
+            };
+
+            reativoVoz.onresult = (event) => {
+                const comando = event.results[0][0].transcript;
+                enviarDiretriz(comando);
+            };
+        }
+
+        function toggleReator(numero) {
+            const btn = document.getElementById(`reator-${numero}`);
+            if (btn) btn.classList.toggle("ativo");
+
+            if (numero === 1) {
+                vozFeedbackAtiva = btn.classList.contains("ativo");
+            }
+
+            if (numero === 2) {
+                ligacaoContinuaAtiva = btn.classList.contains("ativo");
+                if (ligacaoContinuaAtiva && reativoVoz) {
+                    reativoVoz.start();
+                } else if (reativoVoz) {
+                    reativoVoz.stop();
+                }
+            }
+
+            if (numero === 3) {
+                const wrapper = document.getElementById("scroll-wrapper");
+                if (wrapper) wrapper.innerHTML = "";
+                adicionarMensagem("AETHER OS", "Memória central limpa.");
+            }
+
+            if (numero === 4) {
+                const estaAtivo = btn.classList.contains("ativo");
+                if (estaAtivo) {
+                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                        .then(stream => {
+                            lanternaTrack = stream.getVideoTracks()[0];
+                            lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
+                        })
+                        .catch(() => btn.classList.remove("ativo"));
+                } else if (lanternaTrack) {
+                    lanternaTrack.stop();
+                }
             }
         }
 
@@ -436,111 +483,21 @@
             msgDiv.className = "chat-msg";
             msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
 
-            adicionarOpcoesTresPontos(msgDiv);
-
             scrollWrapper.appendChild(msgDiv);
             scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
 
             return idUnico;
         }
 
-        function adicionarOpcoesTresPontos(msgDiv) {
-            if (msgDiv.querySelector('.msg-options-btn')) return;
-
-            const btnOpcoes = document.createElement("button");
-            btnOpcoes.className = "msg-options-btn";
-            btnOpcoes.innerHTML = "&#8942;";
-
-            const menuDropdown = document.createElement("div");
-            menuDropdown.className = "msg-menu-dropdown";
-
-            const btnApagar = document.createElement("button");
-            btnApagar.className = "btn-delete-msg";
-            btnApagar.innerHTML = "&#128465; Apagar mensagem";
-
-            btnApagar.onclick = (e) => {
-                e.stopPropagation();
-                msgDiv.remove();
-            };
-
-            menuDropdown.appendChild(btnApagar);
-            msgDiv.appendChild(btnOpcoes);
-            msgDiv.appendChild(menuDropdown);
-
-            btnOpcoes.onclick = (e) => {
-                e.stopPropagation();
-                document.querySelectorAll('.msg-menu-dropdown').forEach(m => {
-                    if (m !== menuDropdown) m.classList.remove('show');
-                });
-                menuDropdown.classList.toggle('show');
-            };
-        }
-
         function atualizarMensagem(id, autor, texto) {
             const msgDiv = document.getElementById(id);
             if (msgDiv) {
                 msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
-                adicionarOpcoesTresPontos(msgDiv);
                 const scrollWrapper = document.getElementById("scroll-wrapper");
                 if (scrollWrapper) scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
             }
         }
-
-        async function toggleReator(numero) {
-            const btn = document.getElementById(`reator-${numero}`);
-            if (btn) btn.classList.toggle("ativo");
-
-            if (numero === 3) {
-                const wrapper = document.getElementById("scroll-wrapper");
-                if (wrapper) wrapper.innerHTML = "";
-                adicionarMensagem("AETHER OS", "Memória central limpa.");
-            }
-
-            if (numero === 4) {
-                const estaAtivo = btn.classList.contains("ativo");
-                if (estaAtivo) {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: 'environment' }
-                        });
-                        lanternaTrack = stream.getVideoTracks()[0];
-                        await lanternaTrack.applyConstraints({
-                            advanced: [{ torch: true }]
-                        });
-                        adicionarMensagem("AETHER OS", "LANTERNA ATIVADA.");
-                    } catch (err) {
-                        adicionarMensagem("AETHER OS", "Hardware/Navegador não suporta lanterna direta.");
-                        btn.classList.remove("ativo");
-                    }
-                } else {
-                    if (lanternaTrack) {
-                        lanternaTrack.stop();
-                        lanternaTrack = null;
-                    }
-                    adicionarMensagem("AETHER OS", "LANTERNA DESLIGADA.");
-                }
-            }
-        }
-
-        function processarUploadImagem(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagemAnexadaBase64 = e.target.result;
-                    document.getElementById("attachment-preview-bar").style.display = "flex";
-                    document.getElementById("attached-img-thumb").src = imagemAnexadaBase64;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removerAnexo() {
-            imagemAnexadaBase64 = null;
-            document.getElementById("attachment-preview-bar").style.display = "none";
-            document.getElementById("file-input").value = "";
-        }
     </script>
 </body>
-    </html>
+                                                         </html>
                     
