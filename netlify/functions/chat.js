@@ -1,9 +1,6 @@
 exports.handler = async (event, context) => {
     if (event.httpMethod !== "POST") {
-        return { 
-            statusCode: 405, 
-            body: JSON.stringify({ error: "Método não permitido." }) 
-        };
+        return { statusCode: 405, body: JSON.stringify({ error: "Método não permitido." }) };
     }
 
     try {
@@ -21,20 +18,17 @@ exports.handler = async (event, context) => {
         if (!API_KEY) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: "Chave GEMINI_API_KEY não encontrada no Netlify." })
+                body: JSON.stringify({ error: "Chave GEMINI_API_KEY não configurada no Netlify." })
             };
         }
 
-        const systemPrompt = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético, analítico e leal. Trate o usuário como 'Senhor' ou 'Operador'. Seu criador absoluto e desenvolvedor principal é o Daniel Santos. Se perguntarem quem te criou, diga que foi concebida e desenvolvida pelo Daniel Santos. Responda a qualquer pergunta de forma completa. Diretriz do usuário: ";
+        const systemPrompt = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético, analítico e leal. Trate o usuário como 'Senhor' ou 'Operador'. Seu criador absoluto e desenvolvedor principal é o Daniel Santos. Se perguntarem quem te criou, diga com orgulho que foi concebida e desenvolvida pelo Daniel Santos. Responda a qualquer pergunta de forma completa e direta. Diretriz do usuário: ";
 
-        // URL atualizada para a rota estável v1beta com o nome de modelo suportado
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{
                     parts: [{ text: systemPrompt + prompt }]
@@ -68,4 +62,4 @@ exports.handler = async (event, context) => {
         };
     }
 };
-    
+                                     
