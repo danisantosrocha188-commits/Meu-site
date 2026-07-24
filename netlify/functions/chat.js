@@ -24,8 +24,8 @@ exports.handler = async (event, context) => {
 
         const systemPrompt = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético, analítico e leal. Trate o usuário como 'Senhor' ou 'Operador'. Seu criador absoluto e desenvolvedor principal é o Daniel Santos. Se perguntarem quem te criou, diga com orgulho que foi concebida e desenvolvida pelo Daniel Santos. Responda a qualquer pergunta de forma completa e direta. Diretriz do usuário: ";
 
-        // Usando gemini-1.5-flash com endpoint v1beta para evitar cota zerada
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Endpoint da versão 1 com modelo flash
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: "POST",
@@ -63,4 +63,4 @@ exports.handler = async (event, context) => {
         };
     }
 };
-            
+                      
