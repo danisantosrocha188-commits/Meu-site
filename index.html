@@ -63,14 +63,14 @@
         }
 
         #scroll-wrapper {
-            flex: 1 1 auto;
+            flex: 0 1 auto;
             overflow-y: auto;
             padding: 10px 5px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            min-height: 150px;
-            max-height: 45vh;
+            min-height: 80px;
+            max-height: 40vh;
         }
 
         .chat-msg {
@@ -320,10 +320,10 @@
 
         <div class="status-painel">
             <div class="hud-coluna esquerda">
-                <span>NÚCLEO: 100%</span>
-                <span>TENSÃO: 14.4V</span>
-                <span>TEMP: 21°C</span>
-                <span>MODO: MULTIMÍDIA</span>
+                <span>NUCLEO: 100%</span>
+                <span>TENSAO: 14.4V</span>
+                <span>TEMP: 21C</span>
+                <span>MODO: MULTIMIDIA</span>
             </div>
             <div class="hud-coluna direita">
                 <span>FREQ: 60Hz</span>
@@ -336,14 +336,14 @@
         <div id="attachment-preview-bar" style="display: none;">
             <img id="attached-img-thumb" src="" alt="Thumbnail">
             <span id="attached-img-name">Imagem Anexada</span>
-            <button id="btn-remove-attachment" onclick="removerAnexo()">&#10005;</button>
+            <button id="btn-remove-attachment" onclick="removerAnexo()">X</button>
         </div>
 
         <footer id="input-bar">
             <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="processarUploadImagem(event)">
-            <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">&#128206;</button>
-            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Peça uma imagem ou pergunte algo..."></textarea>
-            <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">&gt;&gt;</button>
+            <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">+</button>
+            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Peca uma imagem ou pergunte algo..."></textarea>
+            <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">ENVIAR</button>
         </footer>
 
         <section id="reactors-panel">
@@ -351,7 +351,7 @@
                 REATOR 01<br><small>Feedback Voz</small>
             </button>
             <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">
-                REATOR 02<br><small>Ligação Contínua</small>
+                REATOR 02<br><small>Ligacao Continua</small>
             </button>
             <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">
                 REATOR 03<br><small>Limpar Tela</small>
@@ -368,13 +368,13 @@
     </div>
 
     <script>
-        let imagemAnexadaBase64 = null;
-        let vozAtiva = false;
-        let escutando = false;
-        let recognition = null;
-        let lanternaAtiva = false;
-        let mediaStreamAtual = null;
-        let trackDaCamera = null;
+        var imagemAnexadaBase64 = null;
+        var vozAtiva = false;
+        var escutando = false;
+        var recognition = null;
+        var lanternaAtiva = false;
+        var mediaStreamAtual = null;
+        var trackDaCamera = null;
 
         window.onload = function() {
             desenharGlobo3D();
@@ -382,12 +382,15 @@
 
             document.addEventListener('click', function(e) {
                 if (!e.target.classList.contains('msg-options-btn')) {
-                    document.querySelectorAll('.msg-menu-dropdown').forEach(m => m.classList.remove('show'));
+                    var menus = document.querySelectorAll('.msg-menu-dropdown');
+                    for (var i = 0; i < menus.length; i++) {
+                        menus[i].classList.remove('show');
+                    }
                 }
             });
         };
 
-        const PONTOS_CONTINENTES = [
+        var PONTOS_CONTINENTES = [
             [10,35],[20,32],[30,30],[15,20],[25,15],[35,10],[10,5],[20,0],[30,-5],
             [15,-15],[25,-20],[30,-30],[18,-25],[8,10],[5,-5],[35,0],[40,5],
             [0,45],[10,48],[20,50],[30,55],[15,52],[-5,40],[5,55],[25,45],[35,48],
@@ -402,11 +405,11 @@
         ];
 
         function desenharGlobo3D() {
-            const canvas = document.getElementById("globeCanvas");
+            var canvas = document.getElementById("globeCanvas");
             if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-            const cx = 16, cy = 16, r = 13;
-            let angulo = 0;
+            var ctx = canvas.getContext("2d");
+            var cx = 16, cy = 16, r = 13;
+            var angulo = 0;
 
             function render() {
                 ctx.clearRect(0, 0, 32, 32);
@@ -422,18 +425,20 @@
                 ctx.stroke();
 
                 ctx.shadowBlur = 0;
-                for (const [lonDeg, latDeg] of PONTOS_CONTINENTES) {
-                    const lon = (lonDeg * Math.PI / 180) + angulo;
-                    const lat = latDeg * Math.PI / 180;
+                for (var i = 0; i < PONTOS_CONTINENTES.length; i++) {
+                    var lonDeg = PONTOS_CONTINENTES[i][0];
+                    var latDeg = PONTOS_CONTINENTES[i][1];
+                    var lon = (lonDeg * Math.PI / 180) + angulo;
+                    var lat = latDeg * Math.PI / 180;
 
-                    const x3 = Math.cos(lat) * Math.sin(lon);
-                    const y3 = Math.sin(lat);
-                    const z3 = Math.cos(lat) * Math.cos(lon);
+                    var x3 = Math.cos(lat) * Math.sin(lon);
+                    var y3 = Math.sin(lat);
+                    var z3 = Math.cos(lat) * Math.cos(lon);
 
                     if (z3 > 0.05) {
-                        const px = cx + x3 * r;
-                        const py = cy - y3 * r;
-                        const tamanho = 0.9 + z3 * 0.6;
+                        var px = cx + x3 * r;
+                        var py = cy - y3 * r;
+                        var tamanho = 0.9 + z3 * 0.6;
 
                         ctx.beginPath();
                         ctx.arc(px, py, tamanho, 0, Math.PI * 2);
@@ -455,9 +460,9 @@
             render();
         }
 
-        async function enviarDiretriz() {
-            const inputArea = document.getElementById("txt-input");
-            const textoUsuario = inputArea ? inputArea.value.trim() : "";
+        function enviarDiretriz() {
+            var inputArea = document.getElementById("txt-input");
+            var textoUsuario = inputArea ? inputArea.value.trim() : "";
             if (!textoUsuario && !imagemAnexadaBase64) return;
 
             if (imagemAnexadaBase64) {
@@ -470,30 +475,30 @@
             if (inputArea) inputArea.value = "";
             if (!textoUsuario) return;
 
-            const idCarregando = adicionarMensagem("AETHER OS", "Processando...");
+            var idCarregando = adicionarMensagem("AETHER OS", "Processando...");
 
-            try {
-                const resp = await fetch("/.netlify/functions/chat", {
-                    method: "POST",
-                    body: JSON.stringify({ message: textoUsuario })
-                });
-                const data = await resp.json();
+            fetch("/.netlify/functions/chat", {
+                method: "POST",
+                body: JSON.stringify({ message: textoUsuario })
+            }).then(function(resp) {
+                return resp.json();
+            }).then(function(data) {
                 atualizarMensagem(idCarregando, "AETHER OS", data.resposta);
-            } catch (erro) {
+            }).catch(function(erro) {
                 atualizarMensagem(idCarregando, "AETHER OS", "Erro ao conectar com o sistema.");
-            }
+            });
         }
 
         function adicionarMensagem(autor, texto) {
-            const scrollWrapper = document.getElementById("scroll-wrapper");
+            var scrollWrapper = document.getElementById("scroll-wrapper");
             if (!scrollWrapper) return;
 
-            const msgDiv = document.createElement("div");
-            const idUnico = "msg-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+            var msgDiv = document.createElement("div");
+            var idUnico = "msg-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
 
             msgDiv.id = idUnico;
             msgDiv.className = "chat-msg";
-            msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
+            msgDiv.innerHTML = "<strong>&gt;&gt; " + autor + ":</strong> " + texto;
 
             adicionarOpcoesTresPontos(msgDiv);
 
@@ -508,13 +513,13 @@
         }
 
         function adicionarMensagemComImagem(autor, texto, base64Img) {
-            const id = adicionarMensagem(autor, texto);
-            const msgDiv = document.getElementById(id);
+            var id = adicionarMensagem(autor, texto);
+            var msgDiv = document.getElementById(id);
             if (msgDiv) {
-                const img = document.createElement("img");
+                var img = document.createElement("img");
                 img.src = base64Img;
                 img.className = "chat-img-render";
-                img.onclick = () => abrirMedia(base64Img);
+                img.onclick = function() { abrirMedia(base64Img); };
                 msgDiv.appendChild(img);
             }
             return id;
@@ -523,18 +528,18 @@
         function adicionarOpcoesTresPontos(msgDiv) {
             if (msgDiv.querySelector('.msg-options-btn')) return;
 
-            const btnOpcoes = document.createElement("button");
+            var btnOpcoes = document.createElement("button");
             btnOpcoes.className = "msg-options-btn";
             btnOpcoes.innerHTML = "&#8942;";
 
-            const menuDropdown = document.createElement("div");
+            var menuDropdown = document.createElement("div");
             menuDropdown.className = "msg-menu-dropdown";
 
-            const btnApagar = document.createElement("button");
+            var btnApagar = document.createElement("button");
             btnApagar.className = "btn-delete-msg";
-            btnApagar.innerHTML = "&#128465; Apagar mensagem";
+            btnApagar.innerHTML = "Apagar mensagem";
 
-            btnApagar.onclick = (e) => {
+            btnApagar.onclick = function(e) {
                 e.stopPropagation();
                 msgDiv.remove();
             };
@@ -543,21 +548,22 @@
             msgDiv.appendChild(btnOpcoes);
             msgDiv.appendChild(menuDropdown);
 
-            btnOpcoes.onclick = (e) => {
+            btnOpcoes.onclick = function(e) {
                 e.stopPropagation();
-                document.querySelectorAll('.msg-menu-dropdown').forEach(m => {
-                    if (m !== menuDropdown) m.classList.remove('show');
-                });
+                var menus = document.querySelectorAll('.msg-menu-dropdown');
+                for (var i = 0; i < menus.length; i++) {
+                    if (menus[i] !== menuDropdown) menus[i].classList.remove('show');
+                }
                 menuDropdown.classList.toggle('show');
             };
         }
 
         function atualizarMensagem(id, autor, texto) {
-            const msgDiv = document.getElementById(id);
+            var msgDiv = document.getElementById(id);
             if (msgDiv) {
-                msgDiv.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
+                msgDiv.innerHTML = "<strong>&gt;&gt; " + autor + ":</strong> " + texto;
                 adicionarOpcoesTresPontos(msgDiv);
-                const scrollWrapper = document.getElementById("scroll-wrapper");
+                var scrollWrapper = document.getElementById("scroll-wrapper");
                 if (scrollWrapper) scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
 
                 if (autor === "AETHER OS" && vozAtiva) {
@@ -567,15 +573,15 @@
         }
 
         function processarUploadImagem(event) {
-            const arquivo = event.target.files[0];
+            var arquivo = event.target.files[0];
             if (!arquivo) return;
 
-            const leitor = new FileReader();
+            var leitor = new FileReader();
             leitor.onload = function(e) {
                 imagemAnexadaBase64 = e.target.result;
-                const barra = document.getElementById("attachment-preview-bar");
-                const thumb = document.getElementById("attached-img-thumb");
-                const nome = document.getElementById("attached-img-name");
+                var barra = document.getElementById("attachment-preview-bar");
+                var thumb = document.getElementById("attached-img-thumb");
+                var nome = document.getElementById("attached-img-name");
 
                 thumb.src = imagemAnexadaBase64;
                 nome.textContent = arquivo.name;
@@ -591,23 +597,17 @@
         }
 
         function abrirMedia(src) {
-            const modal = document.getElementById("media-modal");
-            const conteudo = document.getElementById("modal-content");
-            conteudo.innerHTML = `<img src="${src}" style="max-width:90vw; max-height:80vh; border:1px solid #00f0ff;">`;
+            var modal = document.getElementById("media-modal");
+            var conteudo = document.getElementById("modal-content");
+            var img = document.createElement("img");
+            img.src = src;
+            img.style.maxWidth = "90vw";
+            img.style.maxHeight = "80vh";
+            img.style.border = "1px solid #00f0ff";
+            conteudo.innerHTML = "";
+            conteudo.appendChild(img);
             modal.style.display = "flex";
         }
 
         function fecharMedia() {
-            document.getElementById("media-modal").style.display = "none";
-        }
-
-        function falarTexto(texto) {
-            if (!('speechSynthesis' in window)) return;
-            const textoLimpo = texto.replace(/<[^>]*>/g, "");
-            const fala = new SpeechSynthesisUtterance(textoLimpo);
-            fala.lang = "pt-BR";
-            speechSynthesis.cancel();
-            speechSynthesis.speak(fala);
-        }
-
-        function tog
+            document.getElementById("media-modal")
