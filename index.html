@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AETHER OS</title>
     <style>
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         html, body {
-            background-color: #000000 !important;
-            color: #00f0ff !important;
+            background-color: #000;
+            color: #00f0ff;
             height: 100dvh;
             width: 100vw;
             overflow: hidden;
@@ -26,18 +24,16 @@
             display: flex;
             flex-direction: column;
             height: 100dvh;
-            justify-content: space-between;
-            padding: 8px;
-            background: #000000;
+            background: #000;
         }
 
         .topo-hud {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 36px;
-            padding: 0 5px;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            height: 40px;
+            padding: 0 10px;
+            border-bottom: 1px solid rgba(0,240,255,0.25);
             flex-shrink: 0;
         }
 
@@ -45,47 +41,50 @@
             font-weight: bold;
             font-size: 0.9rem;
             color: #00f0ff;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px #00f0ff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #00f0ff;
         }
 
-        .globe-container {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #globeCanvas { width: 28px; height: 28px; display: block; }
+        .globe-container { width: 28px; height: 28px; }
+        #globeCanvas { display: block; width: 28px; height: 28px; }
 
         #scroll-wrapper {
             flex: 1;
             overflow-y: auto;
-            padding: 8px 4px;
+            padding: 10px 8px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             min-height: 0;
-            align-items: flex-start;
-            text-align: left;
+            scroll-behavior: smooth;
         }
+
+        #scroll-wrapper::-webkit-scrollbar { width: 3px; }
+        #scroll-wrapper::-webkit-scrollbar-track { background: #000; }
+        #scroll-wrapper::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.3); }
 
         .chat-msg {
             position: relative;
             width: 100%;
-            padding-right: 25px;
+            padding-right: 24px;
             font-size: 0.8rem;
             color: #00f0ff;
-            background: transparent;
-            border: none;
-            word-break: break-word;
-            line-height: 1.35;
+            line-height: 1.45;
             white-space: pre-wrap;
-            text-align: left;
+            word-break: break-word;
             user-select: text;
             -webkit-user-select: text;
+            animation: fadeIn 0.2s ease-in;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-msg.aether { color: #00f0ff; }
+        .chat-msg.user   { color: rgba(0,240,255,0.75); }
+        .chat-msg.erro   { color: #ff0055; }
 
         .msg-options-btn {
             position: absolute;
@@ -94,73 +93,74 @@
             background: transparent;
             border: none;
             color: #00f0ff;
-            font-size: 0.9rem;
+            font-size: 1rem;
             cursor: pointer;
-            padding: 0 2px;
-            opacity: 0.6;
+            padding: 0 3px;
+            opacity: 0.4;
+            line-height: 1;
+            transition: opacity 0.2s;
         }
-
         .msg-options-btn:hover { opacity: 1; }
 
         .msg-menu-popup {
             display: none;
             position: absolute;
             right: 0;
-            top: 18px;
+            top: 20px;
             background: #000;
             border: 1px solid #ff0055;
-            z-index: 100;
             border-radius: 2px;
+            z-index: 100;
         }
-
         .msg-menu-popup.ativo { display: block; }
 
         .btn-delete-msg {
             background: transparent;
             border: none;
             color: #ff0055;
-            padding: 4px 8px;
+            padding: 5px 10px;
             font-size: 0.65rem;
             cursor: pointer;
-            font-weight: bold;
-            white-space: nowrap;
             font-family: inherit;
+            white-space: nowrap;
+            display: block;
+            width: 100%;
+            text-align: left;
         }
-
-        .btn-delete-msg:hover { background: rgba(255, 0, 85, 0.2); }
+        .btn-delete-msg:hover { background: rgba(255,0,85,0.15); }
 
         .painel-inferior-fixo {
             display: flex;
             flex-direction: column;
             gap: 6px;
             flex-shrink: 0;
-            padding-top: 4px;
+            padding: 6px 8px 8px;
             background: #000;
+            border-top: 1px solid rgba(0,240,255,0.15);
         }
 
         .reator-arc-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 2px 0;
         }
 
         .reator-arc {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             border: 2px dashed #00f0ff;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
-            animation: girarReator 12s linear infinite;
+            box-shadow: 0 0 14px rgba(0,240,255,0.35), inset 0 0 8px rgba(0,240,255,0.1);
+            animation: girarReator 10s linear infinite;
         }
 
-        .reator-arc.ouvidor {
+        .reator-arc.ouvindo {
             border-color: #ff0055;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.8);
-            animation: girarReator 2s linear infinite;
+            box-shadow: 0 0 18px rgba(255,0,85,0.7), inset 0 0 10px rgba(255,0,85,0.2);
+            animation-duration: 1.5s;
         }
 
         .reator-nucleo {
@@ -168,47 +168,63 @@
             height: 18px;
             border-radius: 50%;
             background: #00f0ff;
-            box-shadow: 0 0 15px #00f0ff;
+            box-shadow: 0 0 16px #00f0ff, 0 0 30px rgba(0,240,255,0.4);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .reator-arc.ouvindo .reator-nucleo {
+            background: #ff0055;
+            box-shadow: 0 0 16px #ff0055, 0 0 30px rgba(255,0,85,0.4);
         }
 
         @keyframes girarReator {
             from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            to   { transform: rotate(360deg); }
         }
 
         .status-painel {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.55rem;
+            align-items: flex-start;
+            font-size: 0.52rem;
             color: #00f0ff;
+            opacity: 0.8;
             padding: 0 2px;
+            letter-spacing: 0.5px;
         }
 
-        .hud-coluna { display: flex; flex-direction: column; gap: 1px; }
+        .hud-coluna { display: flex; flex-direction: column; gap: 2px; line-height: 1.3; }
         .hud-coluna.direita { text-align: right; }
 
-        #input-bar { display: flex; gap: 4px; }
+        #input-bar {
+            display: flex;
+            gap: 5px;
+            align-items: flex-end;
+        }
 
         .caixa-texto {
             flex: 1;
             background: #000;
-            border: 1px solid #00f0ff;
+            border: 1px solid rgba(0,240,255,0.6);
             color: #00f0ff;
-            padding: 6px;
+            padding: 7px 8px;
             font-size: 0.75rem;
+            font-family: inherit;
             outline: none;
             resize: none;
-            height: 36px;
+            min-height: 36px;
+            max-height: 100px;
+            border-radius: 0;
+            transition: border-color 0.2s;
             user-select: text;
             -webkit-user-select: text;
         }
-
-        .caixa-texto::placeholder { color: rgba(0, 240, 255, 0.4); }
+        .caixa-texto:focus { border-color: #00f0ff; box-shadow: 0 0 6px rgba(0,240,255,0.3); }
+        .caixa-texto::placeholder { color: rgba(0,240,255,0.35); }
 
         .btn-icone, .btn-enviar {
             background: #000;
-            border: 1px solid #00f0ff;
+            border: 1px solid rgba(0,240,255,0.6);
             color: #00f0ff;
             width: 36px;
             height: 36px;
@@ -216,301 +232,357 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-family: inherit;
+            flex-shrink: 0;
+            transition: background 0.15s, box-shadow 0.15s;
         }
+        .btn-icone:hover { background: rgba(0,240,255,0.08); }
 
-        .btn-enviar { background: #00f0ff; color: #000; font-weight: bold; }
+        .btn-enviar {
+            background: #00f0ff;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-color: #00f0ff;
+        }
+        .btn-enviar:hover { box-shadow: 0 0 10px rgba(0,240,255,0.5); }
+        .btn-enviar:disabled { opacity: 0.5; cursor: not-allowed; }
 
         #reactors-panel {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
+            gap: 5px;
         }
 
         .btn-reator {
             background: #000;
-            border: 1px solid #00f0ff;
+            border: 1px solid rgba(0,240,255,0.5);
             color: #00f0ff;
-            padding: 4px 1px;
-            font-size: 0.55rem;
+            padding: 5px 2px;
+            font-size: 0.52rem;
             text-align: center;
             cursor: pointer;
-            line-height: 1.1;
+            line-height: 1.2;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+            transition: background 0.15s, box-shadow 0.15s;
         }
+        .btn-reator:hover { background: rgba(0,240,255,0.07); }
 
         .btn-reator.ativo {
             background: #00f0ff;
             color: #000;
-            box-shadow: 0 0 6px #00f0ff;
+            box-shadow: 0 0 8px rgba(0,240,255,0.6);
+            border-color: #00f0ff;
+            font-weight: bold;
         }
 
-        .btn-reator small { font-size: 0.45rem; display: block; opacity: 0.8; }
+        .btn-reator small {
+            font-size: 0.42rem;
+            display: block;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        .msg-carregando::after {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border: 1px solid #00f0ff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="interface-hud">
-        <header class="topo-hud">
-            <span class="aether-logo-title">AETHER OS</span>
-            <div class="globe-container">
-                <canvas id="globeCanvas" width="28" height="28"></canvas>
-            </div>
-        </header>
-
-        <main id="scroll-wrapper"></main>
-
-        <div class="painel-inferior-fixo">
-            <div class="reator-arc-container">
-                <div class="reator-arc" id="reator-visual">
-                    <div class="reator-nucleo"></div>
-                </div>
-            </div>
-
-            <div class="status-painel">
-                <div class="hud-coluna esquerda">
-                    <span>NÚCLEO: 100%</span>
-                    <span>TENSÃO: 14.4V</span>
-                    <span>TEMP: 21°C</span>
-                    <span>MODO: MULTIMÍDIA</span>
-                </div>
-                <div class="hud-coluna direita">
-                    <span>FREQ: 60Hz</span>
-                    <span>SISTEMA: MULTI_IA</span>
-                    <span>PORTAL: ATIVO</span>
-                    <span>STATUS: COMPILADO</span>
-                </div>
-            </div>
-
-            <footer id="input-bar">
-                <input type="file" id="file-input" accept="image/*" style="display: none;">
-                <button id="btn-attach" class="btn-icone" onclick="document.getElementById('file-input').click()">&#128206;</button>
-                <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Digite uma pergunta ou diretriz..."></textarea>
-                <button id="btn-send" class="btn-enviar" onclick="enviarDiretriz()">&gt;&gt;</button>
-            </footer>
-
-            <section id="reactors-panel">
-                <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">
-                    REATOR 01<br><small>Feedback Voz</small>
-                </button>
-                <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">
-                    REATOR 02<br><small>Ligação Contínua</small>
-                </button>
-                <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">
-                    REATOR 03<br><small>Limpar Tela</small>
-                </button>
-                <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">
-                    REATOR 04<br><small>Flash Fast</small>
-                </button>
-            </section>
+<div class="interface-hud">
+    <header class="topo-hud">
+        <span class="aether-logo-title">AETHER OS</span>
+        <div class="globe-container">
+            <canvas id="globeCanvas" width="28" height="28"></canvas>
         </div>
+    </header>
+
+    <main id="scroll-wrapper"></main>
+
+    <div class="painel-inferior-fixo">
+
+        <div class="reator-arc-container">
+            <div class="reator-arc" id="reator-visual">
+                <div class="reator-nucleo"></div>
+            </div>
+        </div>
+
+        <div class="status-painel">
+            <div class="hud-coluna esquerda">
+                <span>NUCLEO: 100%</span>
+                <span>TENSAO: 14.4V</span>
+                <span>TEMP: 21&deg;C</span>
+                <span>MODO: MULTI_IA</span>
+            </div>
+            <div class="hud-coluna direita">
+                <span>FREQ: 60Hz</span>
+                <span>SISTEMA: GEMINI</span>
+                <span>PORTAL: ATIVO</span>
+                <span>STATUS: ONLINE</span>
+            </div>
+        </div>
+
+        <div id="input-bar">
+            <input type="file" id="file-input" accept="image/*" style="display:none">
+            <button class="btn-icone" id="btn-attach" title="Anexar arquivo">&#128206;</button>
+            <textarea id="txt-input" class="caixa-texto" rows="1" placeholder="Inserir diretriz..."></textarea>
+            <button class="btn-enviar" id="btn-send" title="Enviar">&gt;&gt;</button>
+        </div>
+
+        <section id="reactors-panel">
+            <button class="btn-reator" id="reator-1">REATOR 01<br><small>Feedback Voz</small></button>
+            <button class="btn-reator" id="reator-2">REATOR 02<br><small>Ligacao Cont.</small></button>
+            <button class="btn-reator" id="reator-3">REATOR 03<br><small>Limpar Tela</small></button>
+            <button class="btn-reator" id="reator-4">REATOR 04<br><small>Flash Fast</small></button>
+        </section>
+
     </div>
+</div>
 
-    <script>
-        let ligacaoContinuaAtiva = false;
-        let vozFeedbackAtiva = false;
-        let reativoVoz = null;
-        let lanternaTrack = null;
+<script>
+    const estado = { vozAtiva: false, ligacaoContinua: false, enviando: false };
+    let reconhecimento = null;
+    let lanternaTrack = null;
+    let idMsgCarregando = null;
 
-        window.onload = function() {
-            desenharGlobo3D();
-            adicionarMensagem("AETHER OS", "Sistemas operacionais prontos. Como posso ajudar, Senhor?");
-            inicializarReconhecimentoVoz();
-        };
+    window.addEventListener('load', () => {
+        desenharGlobo();
+        adicionarMensagem('AETHER', 'Sistemas operacionais prontos. Como posso ajudar, Senhor?');
+        inicializarVoz();
+        configurarEventos();
+    });
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.classList.contains('msg-options-btn')) {
-                document.querySelectorAll('.msg-menu-popup').forEach(m => m.classList.remove('ativo'));
+    function configurarEventos() {
+        document.getElementById('btn-send').addEventListener('click', enviar);
+        document.getElementById('btn-attach').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+        document.getElementById('reator-1').addEventListener('click', () => toggleReator(1));
+        document.getElementById('reator-2').addEventListener('click', () => toggleReator(2));
+        document.getElementById('reator-3').addEventListener('click', () => toggleReator(3));
+        document.getElementById('reator-4').addEventListener('click', () => toggleReator(4));
+
+        document.getElementById('txt-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviar();
             }
         });
 
-        function desenharGlobo3D() {
-            const canvas = document.getElementById("globeCanvas");
-            if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-            let angle = 0;
+        document.getElementById('txt-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
 
-            function render() {
-                ctx.clearRect(0, 0, 28, 28);
-                ctx.strokeStyle = "#00f0ff";
-                ctx.lineWidth = 1.2;
-                const cx = 14, cy = 14, r = 10;
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('msg-options-btn')) {
+                document.querySelectorAll('.msg-menu-popup.ativo')
+                    .forEach(m => m.classList.remove('ativo'));
+            }
+        });
+    }
 
+    function desenharGlobo() {
+        const canvas = document.getElementById('globeCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let angulo = 0;
+        (function render() {
+            ctx.clearRect(0, 0, 28, 28);
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 1.2;
+            const cx = 14, cy = 14, r = 10;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            const rx = r * Math.abs(Math.sin(angulo));
+            if (rx > 0.5) {
                 ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.ellipse(cx, cy, rx, r, 0, 0, Math.PI * 2);
                 ctx.stroke();
-
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, r, Math.max(1, r * Math.abs(Math.sin(angle))), 0, 0, Math.PI * 2);
-                ctx.stroke();
-
-                angle += 0.04;
-                requestAnimationFrame(render);
             }
-            render();
+            angulo += 0.04;
+            requestAnimationFrame(render);
+        })();
+    }
+
+    async function enviar(textoDireto = null) {
+        if (estado.enviando) return;
+        const input = document.getElementById('txt-input');
+        const texto = textoDireto || (input ? input.value.trim() : '');
+        if (!texto) return;
+
+        estado.enviando = true;
+        document.getElementById('btn-send').disabled = true;
+        adicionarMensagem('USER', texto);
+
+        if (input && !textoDireto) {
+            input.value = '';
+            input.style.height = 'auto';
         }
 
-        async function enviarDiretriz(textoDireto = null) {
-            const inputArea = document.getElementById("txt-input");
-            const textoUsuario = textoDireto || (inputArea ? inputArea.value.trim() : "");
+        idMsgCarregando = adicionarMensagem('AETHER', 'Processando diretriz nos nucleos...', true);
 
-            if (!textoUsuario) return;
-
-            adicionarMensagem("SENHOR", textoUsuario);
-            if (inputArea && !textoDireto) inputArea.value = "";
-
-            const idCarregando = adicionarMensagem("AETHER OS", "Processando diretriz nos núcleos...");
-
-            try {
-                const res = await fetch("/.netlify/functions/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: textoUsuario })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.resposta) {
-                    atualizarMensagem(idCarregando, "AETHER OS", data.resposta);
-                    falarTexto(data.resposta);
-                } else {
-                    atualizarMensagem(idCarregando, "AETHER OS", "Erro: " + (data.error || "Não foi possível conectar ao servidor."));
-                }
-            } catch (err) {
-                atualizarMensagem(idCarregando, "AETHER OS", "Erro de conexão com o servidor Netlify.");
-            }
-        }
-
-        function falarTexto(texto) {
-            if (!vozFeedbackAtiva && !ligacaoContinuaAtiva) return;
-            window.speechSynthesis.cancel();
-            const fala = new SpeechSynthesisUtterance(texto);
-            fala.lang = "pt-BR";
-            fala.onend = () => {
-                if (ligacaoContinuaAtiva && reativoVoz) {
-                    try { reativoVoz.start(); } catch(e){}
-                }
-            };
-            window.speechSynthesis.speak(fala);
-        }
-
-        function inicializarReconhecimentoVoz() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
-
-            reativoVoz = new SpeechRecognition();
-            reativoVoz.lang = 'pt-BR';
-            reativoVoz.continuous = false;
-
-            reativoVoz.onstart = () => {
-                document.getElementById("reator-visual").classList.add("ouvidor");
-            };
-
-            reativoVoz.onend = () => {
-                document.getElementById("reator-visual").classList.remove("ouvidor");
-            };
-
-            reativoVoz.onresult = (event) => {
-                const comando = event.results[0][0].transcript;
-                enviarDiretriz(comando);
-            };
-        }
-
-        function toggleReator(numero) {
-            const btn = document.getElementById(`reator-${numero}`);
-            if (btn) btn.classList.toggle("ativo");
-
-            if (numero === 1) {
-                vozFeedbackAtiva = btn.classList.contains("ativo");
-            }
-
-            if (numero === 2) {
-                ligacaoContinuaAtiva = btn.classList.contains("ativo");
-                if (ligacaoContinuaAtiva && reativoVoz) {
-                    try { reativoVoz.start(); } catch(e){}
-                } else if (reativoVoz) {
-                    reativoVoz.stop();
-                }
-            }
-
-            if (numero === 3) {
-                const wrapper = document.getElementById("scroll-wrapper");
-                if (wrapper) wrapper.innerHTML = "";
-                adicionarMensagem("AETHER OS", "Sistemas operacionais prontos. Como posso ajudar, Senhor?");
-            }
-
-            if (numero === 4) {
-                const estaAtivo = btn.classList.contains("ativo");
-                if (estaAtivo) {
-                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                        .then(stream => {
-                            lanternaTrack = stream.getVideoTracks()[0];
-                            lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
-                        })
-                        .catch(() => btn.classList.remove("ativo"));
-                } else if (lanternaTrack) {
-                    lanternaTrack.stop();
-                }
-            }
-        }
-
-        function toggleMenuMsg(idMsg) {
-            document.querySelectorAll('.msg-menu-popup').forEach(m => {
-                if (m.id !== 'menu-' + idMsg) m.classList.remove('ativo');
+        try {
+            const res = await fetch('/.netlify/functions/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: texto })
             });
-
-            const menu = document.getElementById('menu-' + idMsg);
-            if (menu) menu.classList.toggle('ativo');
-        }
-
-        function deletarMensagem(idMsg) {
-            const msg = document.getElementById(idMsg);
-            if (msg) msg.remove();
-        }
-
-        function adicionarMensagem(autor, texto) {
-            const scrollWrapper = document.getElementById("scroll-wrapper");
-            if (!scrollWrapper) return;
-
-            const msgDiv = document.createElement("div");
-            const idUnico = "msg-" + Date.now();
-
-            msgDiv.id = idUnico;
-            msgDiv.className = "chat-msg";
-            
-            msgDiv.innerHTML = `
-                <button class="msg-options-btn" onclick="toggleMenuMsg('${idUnico}')">&#8942;</button>
-                <div class="msg-menu-popup" id="menu-${idUnico}">
-                    <button class="btn-delete-msg" onclick="deletarMensagem('${idUnico}')">&#128465; Apagar</button>
-                </div>
-                <span class="msg-content"><strong>&gt;&gt; ${autor}:</strong> ${texto}</span>
-            `;
-
-            scrollWrapper.appendChild(msgDiv);
-            scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
-
-            return idUnico;
-        }
-
-        function atualizarMensagem(id, autor, texto) {
-            const msgDiv = document.getElementById(id);
-            if (msgDiv) {
-                const spanContent = msgDiv.querySelector('.msg-content');
-                if (spanContent) {
-                    spanContent.innerHTML = `<strong>&gt;&gt; ${autor}:</strong> ${texto}`;
-                } else {
-                    msgDiv.innerHTML = `
-                        <button class="msg-options-btn" onclick="toggleMenuMsg('${id}')">&#8942;</button>
-                        <div class="msg-menu-popup" id="menu-${id}">
-                            <button class="btn-delete-msg" onclick="deletarMensagem('${id}')">&#128465; Apagar</button>
-                        </div>
-                        <span class="msg-content"><strong>&gt;&gt; ${autor}:</strong> ${texto}</span>
-                    `;
-                }
-                const scrollWrapper = document.getElementById("scroll-wrapper");
-                if (scrollWrapper) scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
+            const data = await res.json();
+            if (res.ok && data.resposta) {
+                atualizarMensagem(idMsgCarregando, 'AETHER', data.resposta);
+                falar(data.resposta);
+            } else {
+                atualizarMensagem(idMsgCarregando, 'ERRO', data.error || 'Falha na conexao com os nucleos.', true);
             }
+        } catch (err) {
+            atualizarMensagem(idMsgCarregando, 'ERRO', 'Falha de rede. Verifique sua conexao, Senhor.', true);
+        } finally {
+            estado.enviando = false;
+            document.getElementById('btn-send').disabled = false;
+            idMsgCarregando = null;
         }
-    </script>
-</body>
-            </html>
-                    
+    }
+
+    function criarElementoMensagem(id, autor, texto, carregando = false) {
+        const div = document.createElement('div');
+        div.id = id;
+        div.className = 'chat-msg ' + (autor === 'USER' ? 'user' : autor === 'ERRO' ? 'erro' : 'aether');
+        if (carregando) div.classList.add('msg-carregando');
+
+        const btnOpt = document.createElement('button');
+        btnOpt.className = 'msg-options-btn';
+        btnOpt.textContent = '\u22EE';
+        btnOpt.setAttribute('aria-label', 'Opcoes');
+        btnOpt.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(id); });
+
+        const menu = document.createElement('div');
+        menu.className = 'msg-menu-popup';
+        menu.id = 'menu-' + id;
+
+        const btnDel = document.createElement('button');
+        btnDel.className = 'btn-delete-msg';
+        btnDel.textContent = 'Apagar';
+        btnDel.addEventListener('click', () => { document.getElementById(id)?.remove(); });
+        menu.appendChild(btnDel);
+
+        const span = document.createElement('span');
+        span.className = 'msg-content';
+        const prefixo = autor === 'USER' ? '>> SENHOR' : autor === 'ERRO' ? '!! ERRO' : '>> AETHER';
+        span.textContent = prefixo + ': ' + texto;
+
+        div.appendChild(btnOpt);
+        div.appendChild(menu);
+        div.appendChild(span);
+        return div;
+    }
+
+    function adicionarMensagem(autor, texto, carregando = false) {
+        const wrapper = document.getElementById('scroll-wrapper');
+        const id = 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+        const el = criarElementoMensagem(id, autor, texto, carregando);
+        wrapper.appendChild(el);
+        wrapper.scrollTop = wrapper.scrollHeight;
+        return id;
+    }
+
+    function atualizarMensagem(id, autor, texto, erro = false) {
+        const div = document.getElementById(id);
+        if (!div) return;
+        div.classList.remove('msg-carregando');
+        div.className = 'chat-msg ' + (erro ? 'erro' : autor === 'USER' ? 'user' : 'aether');
+        const span = div.querySelector('.msg-content');
+        if (span) {
+            const prefixo = erro ? '!! ERRO' : autor === 'USER' ? '>> SENHOR' : '>> AETHER';
+            span.textContent = prefixo + ': ' + texto;
+        }
+        const wrapper = document.getElementById('scroll-wrapper');
+        if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
+    }
+
+    function toggleMenu(id) {
+        document.querySelectorAll('.msg-menu-popup.ativo').forEach(m => {
+            if (m.id !== 'menu-' + id) m.classList.remove('ativo');
+        });
+        document.getElementById('menu-' + id)?.classList.toggle('ativo');
+    }
+
+    function falar(texto) {
+        if (!estado.vozAtiva && !estado.ligacaoContinua) return;
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const fala = new SpeechSynthesisUtterance(texto);
+        fala.lang = 'pt-BR';
+        fala.rate = 1.0;
+        fala.pitch = 1.0;
+        fala.onend = () => {
+            if (estado.ligacaoContinua && reconhecimento) {
+                try { reconhecimento.start(); } catch (_) {}
+            }
+        };
+        window.speechSynthesis.speak(fala);
+    }
+
+    function inicializarVoz() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+        reconhecimento = new SR();
+        reconhecimento.lang = 'pt-BR';
+        reconhecimento.continuous = false;
+        reconhecimento.interimResults = false;
+        reconhecimento.onstart = () => {
+            document.getElementById('reator-visual').classList.add('ouvindo');
+        };
+        reconhecimento.onend = () => {
+            document.getElementById('reator-visual').classList.remove('ouvindo');
+            if (estado.ligacaoContinua && !window.speechSynthesis?.speaking) {
+                setTimeout(() => { try { reconhecimento.start(); } catch (_) {} }, 300);
+            }
+        };
+        reconhecimento.onerror = (e) => {
+            if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('Voz erro:', e.error);
+        };
+        reconhecimento.onresult = (e) => {
+            const cmd = e.results[0][0].transcript.trim();
+            if (cmd) enviar(cmd);
+        };
+    }
+
+    function toggleReator(n) {
+        const btn = document.getElementById('reator-' + n);
+        if (!btn) return;
+        btn.classList.toggle('ativo');
+        const ativo = btn.classList.contains('ativo');
+
+        switch (n) {
+            case 1:
+                estado.vozAtiva = ativo;
+                break;
+            case 2:
+                estado.ligacaoContinua = ativo;
+                if (ativo && reconhecimento) {
+                    try { reconhecimento.start(); } catch (_) {}
+                } else if (reconhecimento) {
+                    try { reconhecimento.stop(); } catch (_) {}
+                }
+                break;
+            case 3:
+                btn.classList.remove('ativo');
+          
