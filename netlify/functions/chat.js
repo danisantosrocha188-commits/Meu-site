@@ -66,7 +66,6 @@ exports.handler = async (event, context) => {
         });
 
         clearTimeout(timeoutId);
-
         const data = await response.json();
 
         if (!response.ok) {
@@ -92,7 +91,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 200,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ resposta: "AETHER OS: Diretriz bloqueada pelos filtros de segurança dos núcleos. Reformule o comando, Senhor." })
+                body: JSON.stringify({ resposta: "AETHER OS: Diretriz bloqueada pelos filtros de segurança. Reformule o comando, Senhor." })
             };
         }
 
