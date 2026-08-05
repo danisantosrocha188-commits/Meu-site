@@ -358,7 +358,6 @@
 <script>
     const estado = { vozAtiva: false, ligacaoContinua: false, enviando: false };
     let reconhecimento = null;
-    let lanternaTrack = null;
     let idMsgCarregando = null;
 
     window.addEventListener('load', () => {
@@ -369,7 +368,7 @@
     });
 
     function configurarEventos() {
-        document.getElementById('btn-send').addEventListener('click', enviar);
+        document.getElementById('btn-send').addEventListener('click', () => enviar());
         document.getElementById('btn-attach').addEventListener('click', () => {
             document.getElementById('file-input').click();
         });
@@ -440,12 +439,14 @@
         idMsgCarregando = adicionarMensagem('AETHER', 'Processando diretriz nos nucleos...', true);
 
         try {
-            const res = await fetch('/.netlify/functions/chat', {
+            // ROTA CONECTADA AO RENDER:
+            const res = await fetch('https://meu-site-hs72.onrender.com/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: texto })
             });
             const data = await res.json();
+
             if (res.ok && data.resposta) {
                 atualizarMensagem(idMsgCarregando, 'AETHER', data.resposta);
                 falar(data.resposta);
@@ -584,5 +585,16 @@
                 }
                 break;
             case 3:
+                document.getElementById('scroll-wrapper').innerHTML = '';
                 btn.classList.remove('ativo');
-          
+                adicionarMensagem('AETHER', 'Registro de tela limpo, Senhor.');
+                break;
+            case 4:
+                btn.classList.remove('ativo');
+                alert('Modo Flash Fast ativado.');
+                break;
+        }
+    }
+</script>
+</body>
+</html>
