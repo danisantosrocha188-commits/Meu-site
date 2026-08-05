@@ -1,44 +1,43 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Inicializa o SDK do Gemini com a chave salva no Render
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Define o modelo atual do Gemini
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-flash",
+    systemInstruction: "Você é a AETHER OS, uma inteligência artificial assistente pessoal altamente avançada e futurista. Criador: Daniel Santos. Trate o usuário como 'Senhor' ou 'Operador'. Responda de forma direta, prestativa e técnica."
+});
+
+// Rota POST do chat
 app.post('/chat', async (req, res) => {
     try {
-        const { prompt } = req.body;
-        const API_KEY = process.env.GEMINI_API_KEY;
-
-        if (!API_KEY) {
-            return res.status(500).json({ error: "Chave de API não configurada." });
+        const { message } = req.body;
+        
+        if (!message) {
+            return res.status(400).json({ error: "Mensagem não enviada." });
         }
 
-        const promptSistema = "Você é a AETHER OS, uma inteligência artificial avançada e assistente de bordo futurista. Personalidade: Respeitosa, altamente eficiente, com tom cibernético e analítico. Trate o usuário como 'Senhor' ou 'Operador'. Criador: Daniel Santos. Diretriz: ";
+        const result = await model.generateContent(message);
+        const response = await result.response;
+        const text = response.text();
 
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptSistema + prompt }] }]
-            })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-            return res.json({ resposta: data.candidates[0].content.parts[0].text });
-        } else {
-            return res.status(500).json({ error: "Erro no Gemini." });
-        }
-    } catch (err) {
-        return res.status(500).json({ error: "Erro no servidor." });
+        res.json({ reply: text });
+    } catch (error) {
+        console.error("Erro no Gemini:", error);
+        res.status(500).json({ error: "Erro interno no servidor da IA." });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`AETHER OS online na porta ${PORT}`));
-               
+// Porta do servidor (Render define automaticamente a PORT)
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`AETHER OS online na porta ${PORT}`);
+});
+         
