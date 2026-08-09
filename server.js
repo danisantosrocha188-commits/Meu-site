@@ -40,4 +40,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`AETHER OS online na porta ${PORT}`);
 });
-         
+    
