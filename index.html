@@ -28,17 +28,15 @@
             overflow: hidden;
         }
 
-        /* CONTAINER PRINCIPAL ADAPTÁVEL */
         .app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            height: 100dvh; /* Adapta perfeitamente a barras móveis */
+            height: 100dvh;
             padding: 10px;
             gap: 8px;
         }
 
-        /* HEADER & GLOBO 3D */
         header {
             display: flex;
             justify-content: space-between;
@@ -62,14 +60,12 @@
             border-radius: 50%;
         }
 
-        /* ÁREA DE CHAT */
         #chat-container {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding-right: 5px;
             border: 1px solid rgba(0, 243, 255, 0.15);
             padding: 8px;
             background: rgba(0, 243, 255, 0.02);
@@ -87,7 +83,6 @@
             text-shadow: 0 0 5px var(--err-color);
         }
 
-        /* REATOR ARC FUTURISTA E HD */
         .center-reactor {
             display: flex;
             justify-content: center;
@@ -151,7 +146,6 @@
             100% { transform: scale(1.15); opacity: 1; }
         }
 
-        /* STATS */
         .stats {
             display: flex;
             justify-content: space-between;
@@ -160,7 +154,6 @@
             flex-shrink: 0;
         }
 
-        /* CONTROLES E PAINEL INFERIOR */
         .bottom-panel {
             display: flex;
             flex-direction: column;
@@ -267,10 +260,10 @@
         let lanternaTrack = null;
         let vozAtiva = false;
         let ligacaoContinua = false;
-        let escutando = false;
         let reconhecimento = null;
+        let processandoAudio = false;
 
-        // 1. GLOBO HOLOGRÁFICO DETALHADO EM CANVAS
+        // 1. GLOBO HOLOGRÁFICO EM CANVAS
         const canvas = document.getElementById('globoCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 40;
@@ -286,12 +279,10 @@
             ctx.strokeStyle = '#00f3ff';
             ctx.lineWidth = 1;
 
-            // Esfera externa
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Linhas Orbitais
             ctx.beginPath();
             ctx.ellipse(cx, cy, r * Math.abs(Math.cos(angle)), r, angle / 2, 0, Math.PI * 2);
             ctx.stroke();
@@ -305,15 +296,15 @@
         }
         drawGlobo();
 
-        // 2. CONFIGURAÇÃO DE VOZ MASCULINA
+        // 2. SÍNTESE DE VOZ MASCULINA
         function falar(texto) {
             if (!vozAtiva || !('speechSynthesis' in window)) return;
             
-            window.speechSynthesis.cancel(); // Para fala anterior
+            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
-            utterance.pitch = 0.85; // Tom mais grave (masculino)
-            utterance.rate = 1.05;
+            utterance.pitch = 0.8;
+            utterance.rate = 1.0;
 
             const voices = window.speechSynthesis.getVoices();
             const vozMasculina = voices.find(v => v.lang.includes('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('helio') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('portuguese')));
@@ -323,7 +314,7 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // 3. SISTEMA DE RECONHECIMENTO DE VOZ (LIGAÇÃO CONTÍNUA)
+        // 3. RECONHECIMENTO DE VOZ
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             reconhecimento = new SpeechRecognition();
@@ -334,17 +325,21 @@
             reconhecimento.onresult = (event) => {
                 const textoOuvido = event.results[0][0].transcript;
                 document.getElementById('userInput').value = textoOuvido;
+                processandoAudio = true;
                 enviarMensagem();
             };
 
             reconhecimento.onend = () => {
-                if (ligacaoContinua) {
-                    setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
+                // Só reinicia se o modo contínuo estiver ativo e não estiver processando mensagem
+                if (ligacaoContinua && !processandoAudio) {
+                    setTimeout(() => { 
+                        if (ligacaoContinua) try { reconhecimento.start(); } catch(e){} 
+                    }, 500);
                 }
             };
         }
 
-        // 4. CHAT E INTEGRAÇÃO COM POLLINATIONS
+        // 4. CHAT - POLLINATIONS COM MODELO OPENAI DEFINIDO
         function adicionarMensagem(autor, texto, erro = false) {
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
@@ -357,24 +352,33 @@
         async function enviarMensagem() {
             const input = document.getElementById('userInput');
             const texto = input.value.trim();
-            if (!texto) return;
+            if (!texto) {
+                processandoAudio = false;
+                return;
+            }
 
             adicionarMensagem('SENHOR', texto);
             input.value = '';
 
             try {
-                const prompt = encodeURIComponent(`Você é o AETHER OS, assistente futurista criado por Daniel Santos. Responda de forma direta e concisa em português. Pergunta: ${texto}`);
-                const response = await fetch(`https://text.pollinations.ai/${prompt}`);
+                const prompt = encodeURIComponent(`Você é a IA AETHER OS, criada por Daniel Santos. Responda de forma direta e concisa em português. Pergunta: ${texto}`);
+                // Adicionado model=openai para evitar erro de cobrança/API antiga
+                const response = await fetch(`https://text.pollinations.ai/${prompt}?model=openai`);
                 const reply = await response.text();
 
-                if (reply) {
+                if (reply && !reply.includes('error')) {
                     adicionarMensagem('AETHER', reply);
                     falar(reply);
                 } else {
-                    adicionarMensagem('AETHER', 'Resposta vazia do sistema.', true);
+                    adicionarMensagem('AETHER', 'Servidor ocupado. Tente novamente.', true);
                 }
             } catch (err) {
-                adicionarMensagem('AETHER', 'Falha de comunicação com a rede.', true);
+                adicionarMensagem('AETHER', 'Falha na conexão.', true);
+            } finally {
+                processandoAudio = false;
+                if (ligacaoContinua && reconhecimento) {
+                    setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
+                }
             }
         }
 
@@ -382,7 +386,7 @@
             if (e.key === 'Enter') enviarMensagem();
         }
 
-        // 5. REATORES (VOZ, LIGAÇÃO CONTÍNUA, LIMPAR, FLASH)
+        // 5. CONTROLE DOS REATORES
         async function toggleReator(n) {
             const btn = document.getElementById('reator-' + n);
             if (!btn) return;
@@ -392,13 +396,13 @@
             switch (n) {
                 case 1:
                     vozAtiva = ativo;
-                    adicionarMensagem('AETHER', ativo ? 'Sintetizador de voz masculino ativado.' : 'Resposta por voz desativada.');
-                    if (ativo) falar("Sintetizador de voz ativado, Senhor.");
+                    adicionarMensagem('AETHER', ativo ? 'Voz ativada.' : 'Voz desativada.');
+                    if (ativo) falar("Sintetizador de voz ativado.");
                     break;
                 case 2:
                     ligacaoContinua = ativo;
                     if (ativo) {
-                        adicionarMensagem('AETHER', 'Escuta contínua ativada. Pode falar.');
+                        adicionarMensagem('AETHER', 'Escuta contínua ativada.');
                         if (reconhecimento) try { reconhecimento.start(); } catch(e){}
                     } else {
                         adicionarMensagem('AETHER', 'Escuta contínua desativada.');
@@ -408,7 +412,7 @@
                 case 3:
                     document.getElementById('chat-container').innerHTML = '';
                     btn.classList.remove('ativo');
-                    adicionarMensagem('AETHER', 'Registro de tela limpo, Senhor.');
+                    adicionarMensagem('AETHER', 'Tela limpa, Senhor.');
                     break;
                 case 4:
                     if (ativo) {
@@ -421,13 +425,13 @@
                             
                             if (capabilities.torch) {
                                 await lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
-                                adicionarMensagem('AETHER', 'Sistemas iluminadores ativados, Senhor.');
+                                adicionarMensagem('AETHER', 'Flash ativado.');
                             } else {
-                                adicionarMensagem('AETHER', 'Dispositivo sem suporte a iluminação LED.', true);
+                                adicionarMensagem('AETHER', 'Sem suporte a Flash.', true);
                                 btn.classList.remove('ativo');
                             }
                         } catch (err) {
-                            adicionarMensagem('AETHER', 'Permissão de câmera negada para acender o Flash.', true);
+                            adicionarMensagem('AETHER', 'Permissão de câmera negada.', true);
                             btn.classList.remove('ativo');
                         }
                     } else {
@@ -435,12 +439,12 @@
                             lanternaTrack.stop();
                             lanternaTrack = null;
                         }
-                        adicionarMensagem('AETHER', 'Sistemas iluminadores desligados.');
+                        adicionarMensagem('AETHER', 'Flash desligado.');
                     }
                     break;
             }
         }
     </script>
 </body>
-                </html>
+                    </html>
     
