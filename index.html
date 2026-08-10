@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AETHER OS</title>
     <style>
         :root {
-            --bg-color: #030708;
             --main-color: #00f3ff;
+            --bg-color: #030708;
             --err-color: #ff0055;
             --font-mono: 'Courier New', Courier, monospace;
         }
@@ -27,45 +27,47 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            padding: 10px;
             overflow: hidden;
-            padding: 15px;
         }
 
+        /* CABEÇALHO COM O GLOBO HOLOGRÁFICO (Canvas 3D) */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--main-color);
-            padding-bottom: 10px;
+            padding-bottom: 5px;
+            height: 45px;
         }
 
         .logo {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             letter-spacing: 2px;
             text-shadow: 0 0 8px var(--main-color);
         }
 
-        .arc-reactor-small {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--main-color);
+        #globoCanvas {
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--main-color);
         }
 
+        /* ÁREA DE MENSAGENS (CHAT) */
         #chat-container {
             flex: 1;
             overflow-y: auto;
-            margin: 15px 0;
+            margin: 10px 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+            padding-right: 5px;
         }
 
         .mensagem {
-            font-size: 0.9rem;
-            line-height: 1.4;
+            font-size: 0.85rem;
+            line-height: 1.3;
             word-break: break-word;
         }
 
@@ -74,45 +76,74 @@
             text-shadow: 0 0 5px var(--err-color);
         }
 
+        /* REATOR CENTRAL COM ANIMAÇÃO GIRATÓRIA */
         .center-reactor {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
-        .core {
-            width: 50px;
-            height: 50px;
+        .core-outer {
+            width: 55px;
+            height: 55px;
             border: 2px dashed var(--main-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+            animation: spin 6s linear infinite;
+        }
+
+        .core-inner {
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--main-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: spin-reverse 3s linear infinite;
         }
 
         .core-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background-color: var(--main-color);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--main-color);
         }
 
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            100% { transform: rotate(-360deg); }
+        }
+
+        /* STATUS */
         .stats {
             display: flex;
             justify-content: space-between;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             opacity: 0.8;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
+        }
+
+        /* ÁREA DE INPUT E BOTÕES */
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .input-area {
             display: flex;
             gap: 5px;
             border: 1px solid var(--main-color);
-            padding: 5px;
+            padding: 4px;
             background: rgba(0, 243, 255, 0.05);
         }
 
@@ -124,29 +155,30 @@
             font-family: var(--font-mono);
             outline: none;
             padding: 5px;
+            font-size: 0.85rem;
         }
 
         button.btn-send {
             background: transparent;
             border: 1px solid var(--main-color);
             color: var(--main-color);
-            padding: 5px 15px;
+            padding: 5px 12px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .reatores-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin-top: 8px;
+            gap: 4px;
         }
 
         .btn-reator {
             background: transparent;
             border: 1px solid var(--main-color);
             color: var(--main-color);
-            font-size: 0.6rem;
-            padding: 8px 2px;
+            font-size: 0.55rem;
+            padding: 6px 2px;
             text-align: center;
             cursor: pointer;
         }
@@ -162,7 +194,7 @@
 
     <header>
         <div class="logo">AETHER OS</div>
-        <div class="arc-reactor-small"></div>
+        <canvas id="globoCanvas"></canvas>
     </header>
 
     <div id="chat-container">
@@ -170,33 +202,69 @@
     </div>
 
     <div class="center-reactor">
-        <div class="core">
-            <div class="core-dot"></div>
+        <div class="core-outer">
+            <div class="core-inner">
+                <div class="core-dot"></div>
+            </div>
         </div>
     </div>
 
     <div class="stats">
-        <div>NUCLEO: 100%<br>TENSAO: 14.4V</div>
-        <div style="text-align: right;">SISTEMA: OMNINI<br>STATUS: ONLINE</div>
+        <div>NUCLEO: 100% | TENSAO: 14.4V</div>
+        <div style="text-align: right;">SISTEMA: POLLINATIONS | STATUS: ONLINE</div>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Inserir diretriz..." onkeypress="handleKeyPress(event)">
-        <button class="btn-send" onclick="enviarMensagem()">>></button>
-    </div>
+    <div class="controls-wrapper">
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Inserir diretriz..." onkeypress="handleKeyPress(event)">
+            <button class="btn-send" onclick="enviarMensagem()">>></button>
+        </div>
 
-    <div class="reatores-grid">
-        <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">REATOR 01<br>Voz</button>
-        <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">REATOR 02<br>Contínuo</button>
-        <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">REATOR 03<br>Limpar</button>
-        <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">REATOR 04<br>Flash</button>
+        <div class="reatores-grid">
+            <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">REATOR 01<br>Feedback Voz</button>
+            <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">REATOR 02<br>Ligacao Cont.</button>
+            <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">REATOR 03<br>Limpar Tela</button>
+            <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">REATOR 04<br>Flash Fast</button>
+        </div>
     </div>
 
     <script>
-        const API_URL = "https://meu-site-hs72.onrender.com/chat";
         let lanternaTrack = null;
-        let estado = { vozAtiva: false, ligacaoContinua: false };
 
+        // 1. GLOBO HOLOGRÁFICO EM CANVAS
+        const canvas = document.getElementById('globoCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 35;
+        canvas.height = 35;
+        let angle = 0;
+
+        function drawGlobo() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const r = 14;
+
+            ctx.strokeStyle = '#00f3ff';
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, r * Math.abs(Math.cos(angle)), r, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, r, r * Math.abs(Math.sin(angle)), 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            angle += 0.03;
+            requestAnimationFrame(drawGlobo);
+        }
+        drawGlobo();
+
+        // 2. SISTEMA DE CHAT COM POLLINATIONS AI
         function adicionarMensagem(autor, texto, erro = false) {
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
@@ -215,20 +283,17 @@
             input.value = '';
 
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: texto })
-                });
+                const prompt = encodeURIComponent(`Você é o AETHER OS, assistente futurista do criador Daniel Santos. Responda de forma direta e curta como IA de Jarvis. Pergunta: ${texto}`);
+                const response = await fetch(`https://text.pollinations.ai/${prompt}`);
+                const reply = await response.text();
 
-                const data = await response.json();
-                if (data.reply) {
-                    adicionarMensagem('AETHER', data.reply);
+                if (reply) {
+                    adicionarMensagem('AETHER', reply);
                 } else {
-                    adicionarMensagem('AETHER', 'Erro no Gemini.', true);
+                    adicionarMensagem('AETHER', 'Resposta vazia do sistema.', true);
                 }
             } catch (err) {
-                adicionarMensagem('AETHER', 'Falha na conexão com o servidor.', true);
+                adicionarMensagem('AETHER', 'Falha ao conectar na rede.', true);
             }
         }
 
@@ -236,6 +301,7 @@
             if (e.key === 'Enter') enviarMensagem();
         }
 
+        // 3. REATORES (INCLUINDO FLASH REAL E LIMPEZA DE TELA)
         async function toggleReator(n) {
             const btn = document.getElementById('reator-' + n);
             if (!btn) return;
@@ -244,10 +310,10 @@
 
             switch (n) {
                 case 1:
-                    estado.vozAtiva = ativo;
+                    adicionarMensagem('AETHER', ativo ? 'Feedback por voz preparado.' : 'Voz desativada.');
                     break;
                 case 2:
-                    estado.ligacaoContinua = ativo;
+                    adicionarMensagem('AETHER', ativo ? 'Modo de escuta contínua ativado.' : 'Modo contínuo desligado.');
                     break;
                 case 3:
                     document.getElementById('chat-container').innerHTML = '';
@@ -264,16 +330,14 @@
                             const capabilities = lanternaTrack.getCapabilities();
                             
                             if (capabilities.torch) {
-                                await lanternaTrack.applyConstraints({
-                                    advanced: [{ torch: true }]
-                                });
+                                await lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
                                 adicionarMensagem('AETHER', 'Sistemas iluminadores ativados, Senhor.');
                             } else {
-                                adicionarMensagem('AETHER', 'Dispositivo não possui suporte a flash/lanterna.', true);
+                                adicionarMensagem('AETHER', 'Dispositivo sem suporte a iluminação LED.', true);
                                 btn.classList.remove('ativo');
                             }
                         } catch (err) {
-                            adicionarMensagem('AETHER', 'Permissão negada para acessar o Flash.', true);
+                            adicionarMensagem('AETHER', 'Permissão de câmera negada.', true);
                             btn.classList.remove('ativo');
                         }
                     } else {
@@ -288,5 +352,5 @@
         }
     </script>
 </body>
-    </html>
+            </html>
     
