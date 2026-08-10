@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rota POST do chat
 app.post('/chat', async (req, res) => {
     try {
         const { message } = req.body;
@@ -17,14 +16,14 @@ app.post('/chat', async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            console.error("ERRO: GEMINI_API_KEY não foi configurada nas Environment Variables.");
-            return res.status(500).json({ error: "Chave de API não encontrada no servidor." });
+            return res.status(500).json({ error: "Sem chave API configurada." });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Usando o modelo mais atual
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-        const prompt = `Você é a AETHER OS, uma inteligência artificial assistente pessoal altamente avançada e futurista. Criador: Daniel Santos. Trate o usuário como 'Senhor' ou 'Operador'. Responda de forma direta e técnica.\n\nUsuário: ${message}`;
+        const prompt = `Você é o AETHER OS, uma IA avançada e futurista. Criador: Daniel Santos. Trate o usuário como 'Senhor' ou 'Operador'.\n\nUsuário: ${message}`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -32,13 +31,13 @@ app.post('/chat', async (req, res) => {
 
         res.json({ reply: text });
     } catch (error) {
-        console.error("Erro no Gemini:", error.message || error);
-        res.status(500).json({ error: "Erro interno no servidor da IA." });
+        console.error("Erro detalhado no servidor:", error);
+        res.status(500).json({ error: "Erro interno no Gemini." });
     }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`AETHER OS online na porta ${PORT}`);
+    console.log(`AETHER OS rodando na porta ${PORT}`);
 });
-    
+                
