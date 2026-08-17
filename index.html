@@ -233,7 +233,7 @@
 
         <div class="stats">
             <div>NUCLEO: 100% | TENSAO: 14.4V</div>
-            <div style="text-align: right;">SISTEMA: POLLINATIONS API | STATUS: ONLINE</div>
+            <div style="text-align: right;">SISTEMA: FREE API | STATUS: ONLINE</div>
         </div>
 
         <div class="bottom-panel">
@@ -344,42 +344,25 @@
             input.value = '';
 
             try {
-                // Chamada oficial via POST aceita no GitHub Pages sem erro de CORS
-                const response = await fetch('https://text.pollinations.ai/openai', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: 'system', content: 'Você é o AETHER OS, um assistente futurista avançado. Responda diretamente e de forma completa em português.' },
-                            { role: 'user', content: texto }
-                        ],
-                        model: 'openai'
-                    })
-                });
+                // Rota usando proxy CORS público para desbloquear requisições do GitHub Pages
+                const corsProxy = "https://corsproxy.io/?";
+                const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(texto)}`;
+                
+                const response = await fetch(corsProxy + encodeURIComponent(targetUrl));
 
                 if (response.ok) {
-                    const data = await response.json();
-                    let reply = "";
-
-                    if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                        reply = data.choices[0].message.content;
-                    } else if (typeof data === 'string') {
-                        reply = data;
-                    }
-
+                    const reply = await response.text();
                     if (reply && reply.trim()) {
                         adicionarMensagem('AETHER', reply.trim());
                         falar(reply.trim());
                     } else {
-                        throw new Error("Resposta vazia da API.");
+                        throw new Error("Vazio");
                     }
                 } else {
-                    throw new Error("Erro na comunicação HTTP.");
+                    throw new Error("Erro HTTP");
                 }
             } catch (e) {
-                const erroMsg = "Erro na requisição. Verifique sua conexão ou tente novamente em instantes.";
+                const erroMsg = "Instabilidade na API externa. Tente enviar novamente.";
                 adicionarMensagem('AETHER', erroMsg);
             } finally {
                 processandoAudio = false;
@@ -451,5 +434,5 @@
         }
     </script>
 </body>
-                                        </html>
-    
+                    </html>
+                                                                                  
