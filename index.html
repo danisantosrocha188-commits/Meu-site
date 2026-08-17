@@ -263,7 +263,6 @@
         let reconhecimento = null;
         let processandoAudio = false;
 
-        // GLOBO HOLOGRÁFICO
         const canvas = document.getElementById('globoCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 40;
@@ -296,7 +295,6 @@
         }
         drawGlobo();
 
-        // SÍNTESE DE VOZ
         function falar(texto) {
             if (!vozAtiva || !('speechSynthesis' in window)) return;
             
@@ -314,7 +312,6 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // RECONHECIMENTO DE VOZ
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             reconhecimento = new SpeechRecognition();
@@ -347,41 +344,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        async function obterRespostaPollinations(prompt) {
-            const systemPrompt = "Você é o assistente virtual AETHER OS, criado por Daniel Santos. Responda de forma direta e curta em português.";
-            
-            // Tentativa 1: Endpoint de Chat com Modelo Padrão
-            try {
-                const res = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: prompt }
-                        ],
-                        seed: Math.floor(Math.random() * 100000)
-                    })
-                });
-                if (res.ok) {
-                    const text = await res.text();
-                    if (text && !text.includes('error')) return text.trim();
-                }
-            } catch (e) {}
-
-            // Tentativa 2: Endpoint GET com Rota Alternativa
-            try {
-                const query = encodeURIComponent(`${systemPrompt} ${prompt}`);
-                const res = await fetch(`https://text.pollinations.ai/${query}?model=openai&seed=${Math.floor(Math.random() * 10000)}`);
-                if (res.ok) {
-                    const text = await res.text();
-                    if (text && !text.includes('error')) return text.trim();
-                }
-            } catch (e) {}
-
-            return null;
-        }
-
         async function enviarMensagem() {
             const input = document.getElementById('userInput');
             const texto = input.value.trim();
@@ -394,20 +356,25 @@
             input.value = '';
 
             try {
-                const resposta = await obterRespostaPollinations(texto);
+                const promptComportamento = `Você é o AETHER OS, assistente de Daniel Santos. Responda curto e direto em português: ${texto}`;
+                const url = `https://text.pollinations.ai/${encodeURIComponent(promptComportamento)}`;
 
-                if (resposta) {
-                    adicionarMensagem('AETHER', resposta);
-                    falar(resposta);
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error("Falha na resposta do servidor.");
+                }
+
+                const reply = await response.text();
+
+                if (reply && reply.trim().length > 0 && !reply.includes("Internal Server Error")) {
+                    adicionarMensagem('AETHER', reply.trim());
+                    falar(reply.trim());
                 } else {
-                    const fallback = "Sistemas operacionais ativos, Senhor. Como posso ajudar com sua próxima diretriz?";
-                    adicionarMensagem('AETHER', fallback);
-                    falar(fallback);
+                    throw new Error("Resposta inválida.");
                 }
             } catch (err) {
-                const fallbackErro = "Rede instável, mas sistemas mantidos online, Senhor.";
-                adicionarMensagem('AETHER', fallbackErro);
-                falar(fallbackErro);
+                adicionarMensagem('AETHER', 'Falha na conexão com a API Pollinations. Verifique a rede.', true);
             } finally {
                 processandoAudio = false;
                 if (ligacaoContinua && reconhecimento) {
@@ -420,7 +387,6 @@
             if (e.key === 'Enter') enviarMensagem();
         }
 
-        // CONTROLE DOS REATORES
         async function toggleReator(n) {
             const btn = document.getElementById('reator-' + n);
             if (!btn) return;
@@ -480,5 +446,5 @@
         }
     </script>
 </body>
-    </html>
+                </html>
     
