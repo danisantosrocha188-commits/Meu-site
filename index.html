@@ -233,7 +233,7 @@
 
         <div class="stats">
             <div>NUCLEO: 100% | TENSAO: 14.4V</div>
-            <div style="text-align: right;">SISTEMA: AETHER AI | STATUS: ONLINE</div>
+            <div style="text-align: right;">SISTEMA: POLLINATIONS API | STATUS: ONLINE</div>
         </div>
 
         <div class="bottom-panel">
@@ -332,20 +332,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function obterRespostaLocal(input) {
-            const cmd = input.toLowerCase();
-            if (cmd.includes("oi") || cmd.includes("olá") || cmd.includes("ola")) {
-                return "Sistemas operacionais ativos, Senhor. Como posso ajudar?";
-            } else if (cmd.includes("quem é você") || cmd.includes("seu nome")) {
-                return "Eu sou o AETHER OS, o seu assistente de inteligência de sistema.";
-            } else if (cmd.includes("status")) {
-                return "Todos os reatores operando em capacidade nominal de 100%.";
-            } else if (cmd.includes("buraco negro")) {
-                return "Um buraco negro é uma região do espaço onde a gravidade é tão forte que nada consegue escapar.";
-            }
-            return "Diretriz processada, Senhor. Executando operações de sistema.";
-        }
-
         async function enviarMensagem() {
             const input = document.getElementById('userInput');
             const texto = input.value.trim();
@@ -357,37 +343,49 @@
             adicionarMensagem('SENHOR', texto);
             input.value = '';
 
-            let respostaFinal = "";
-
             try {
-                const url = `https://text.pollinations.ai/${encodeURIComponent(texto)}?model=openai`;
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
+                // Chamada oficial via POST aceita no GitHub Pages sem erro de CORS
+                const response = await fetch('https://text.pollinations.ai/openai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: 'system', content: 'Você é o AETHER OS, um assistente futurista avançado. Responda diretamente e de forma completa em português.' },
+                            { role: 'user', content: texto }
+                        ],
+                        model: 'openai'
+                    })
+                });
 
                 if (response.ok) {
-                    const data = await response.text();
-                    if (data && data.trim().length > 0) {
-                        respostaFinal = data.trim();
+                    const data = await response.json();
+                    let reply = "";
+
+                    if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                        reply = data.choices[0].message.content;
+                    } else if (typeof data === 'string') {
+                        reply = data;
                     }
+
+                    if (reply && reply.trim()) {
+                        adicionarMensagem('AETHER', reply.trim());
+                        falar(reply.trim());
+                    } else {
+                        throw new Error("Resposta vazia da API.");
+                    }
+                } else {
+                    throw new Error("Erro na comunicação HTTP.");
                 }
             } catch (e) {
-                // Em caso de falha de CORS ou timeout, utiliza resposta dinâmica de contingência
-                respostaFinal = obterRespostaLocal(texto);
-            }
-
-            if (!respostaFinal) {
-                respostaFinal = obterRespostaLocal(texto);
-            }
-
-            adicionarMensagem('AETHER', respostaFinal);
-            falar(respostaFinal);
-
-            processandoAudio = false;
-            if (ligacaoContinua && reconhecimento) {
-                setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
+                const erroMsg = "Erro na requisição. Verifique sua conexão ou tente novamente em instantes.";
+                adicionarMensagem('AETHER', erroMsg);
+            } finally {
+                processandoAudio = false;
+                if (ligacaoContinua && reconhecimento) {
+                    setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
+                }
             }
         }
 
@@ -453,5 +451,5 @@
         }
     </script>
 </body>
-                    </html>
+                                        </html>
     
