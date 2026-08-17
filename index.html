@@ -233,7 +233,7 @@
 
         <div class="stats">
             <div>NUCLEO: 100% | TENSAO: 14.4V</div>
-            <div style="text-align: right;">SISTEMA: FREE API | STATUS: ONLINE</div>
+            <div style="text-align: right;">SISTEMA: POLLINATIONS API | STATUS: ONLINE</div>
         </div>
 
         <div class="bottom-panel">
@@ -344,11 +344,10 @@
             input.value = '';
 
             try {
-                // Rota usando proxy CORS público para desbloquear requisições do GitHub Pages
-                const corsProxy = "https://corsproxy.io/?";
-                const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(texto)}`;
-                
-                const response = await fetch(corsProxy + encodeURIComponent(targetUrl));
+                const promptFormatado = encodeURIComponent(`Você é o AETHER OS, um assistente futurista avançado. Responda diretamente e de forma completa em português: ${texto}`);
+                const url = `https://text.pollinations.ai/${promptFormatado}?model=openai&seed=${Math.floor(Math.random() * 1000000)}`;
+
+                const response = await fetch(url);
 
                 if (response.ok) {
                     const reply = await response.text();
@@ -356,14 +355,13 @@
                         adicionarMensagem('AETHER', reply.trim());
                         falar(reply.trim());
                     } else {
-                        throw new Error("Vazio");
+                        throw new Error("Resposta vazia.");
                     }
                 } else {
-                    throw new Error("Erro HTTP");
+                    throw new Error("Erro na comunicação HTTP.");
                 }
             } catch (e) {
-                const erroMsg = "Instabilidade na API externa. Tente enviar novamente.";
-                adicionarMensagem('AETHER', erroMsg);
+                adicionarMensagem('AETHER', "Erro na requisição. Verifique sua conexão ou tente novamente.");
             } finally {
                 processandoAudio = false;
                 if (ligacaoContinua && reconhecimento) {
@@ -434,5 +432,5 @@
         }
     </script>
 </body>
-                </html>
-            
+            </html>
+    
