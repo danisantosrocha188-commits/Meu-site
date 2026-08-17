@@ -78,11 +78,6 @@
             word-break: break-word;
         }
 
-        .mensagem.erro {
-            color: var(--err-color);
-            text-shadow: 0 0 5px var(--err-color);
-        }
-
         .center-reactor {
             display: flex;
             justify-content: center;
@@ -238,7 +233,7 @@
 
         <div class="stats">
             <div>NUCLEO: 100% | TENSAO: 14.4V</div>
-            <div style="text-align: right;">SISTEMA: POLLINATIONS | STATUS: ONLINE</div>
+            <div style="text-align: right;">SISTEMA: AETHER AI | STATUS: ONLINE</div>
         </div>
 
         <div class="bottom-panel">
@@ -297,18 +292,11 @@
 
         function falar(texto) {
             if (!vozAtiva || !('speechSynthesis' in window)) return;
-            
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
             utterance.pitch = 0.8;
             utterance.rate = 1.0;
-
-            const voices = window.speechSynthesis.getVoices();
-            const vozMasculina = voices.find(v => v.lang.includes('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('helio') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('portuguese')));
-            
-            if (vozMasculina) utterance.voice = vozMasculina;
-
             window.speechSynthesis.speak(utterance);
         }
 
@@ -335,13 +323,27 @@
             };
         }
 
-        function adicionarMensagem(autor, texto, erro = false) {
+        function adicionarMensagem(autor, texto) {
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
-            div.className = `mensagem ${erro ? 'erro' : ''}`;
-            div.innerText = `${erro ? '!! ERRO: ' : '>> ' + autor + ': '}${texto}`;
+            div.className = 'mensagem';
+            div.innerText = `>> ${autor}: ${texto}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
+        }
+
+        function obterRespostaLocal(input) {
+            const cmd = input.toLowerCase();
+            if (cmd.includes("oi") || cmd.includes("olá") || cmd.includes("ola")) {
+                return "Sistemas operacionais ativos, Senhor. Como posso ajudar?";
+            } else if (cmd.includes("quem é você") || cmd.includes("seu nome")) {
+                return "Eu sou o AETHER OS, o seu assistente de inteligência de sistema.";
+            } else if (cmd.includes("status")) {
+                return "Todos os reatores operando em capacidade nominal de 100%.";
+            } else if (cmd.includes("buraco negro")) {
+                return "Um buraco negro é uma região do espaço onde a gravidade é tão forte que nada consegue escapar.";
+            }
+            return "Diretriz processada, Senhor. Executando operações de sistema.";
         }
 
         async function enviarMensagem() {
@@ -355,48 +357,37 @@
             adicionarMensagem('SENHOR', texto);
             input.value = '';
 
+            let respostaFinal = "";
+
             try {
-                const prompt = encodeURIComponent(`Você é o AETHER OS, assistente criado por Daniel Santos. Responda curto: ${texto}`);
-                const seed = Math.floor(Math.random() * 10000);
-                
-                // Requisição tratada para evitar erro CORS no GitHub Pages
-                const response = await fetch(`https://text.pollinations.ai/${prompt}?seed=${seed}&json=true`, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
+                const url = `https://text.pollinations.ai/${encodeURIComponent(texto)}?model=openai`;
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-                if (!response.ok) {
-                    throw new Error("Erro de comunicação.");
-                }
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
 
-                const data = await response.json();
-                let reply = "";
+                if (response.ok) {
+                    const data = await response.text();
+                    if (data && data.trim().length > 0) {
+                        respostaFinal = data.trim();
+                    }
+                }
+            } catch (e) {
+                // Em caso de falha de CORS ou timeout, utiliza resposta dinâmica de contingência
+                respostaFinal = obterRespostaLocal(texto);
+            }
 
-                if (typeof data === 'string') {
-                    reply = data;
-                } else if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                    reply = data.choices[0].message.content;
-                } else if (data && data.content) {
-                    reply = data.content;
-                }
+            if (!respostaFinal) {
+                respostaFinal = obterRespostaLocal(texto);
+            }
 
-                if (reply && reply.trim().length > 0) {
-                    adicionarMensagem('AETHER', reply.trim());
-                    falar(reply.trim());
-                } else {
-                    const fallback = "Sistemas operacionais ativos, Senhor.";
-                    adicionarMensagem('AETHER', fallback);
-                    falar(fallback);
-                }
-            } catch (err) {
-                const fallbackErro = "Rede instável, mas sistemas mantidos online, Senhor.";
-                adicionarMensagem('AETHER', fallbackErro);
-                falar(fallbackErro);
-            } finally {
-                processandoAudio = false;
-                if (ligacaoContinua && reconhecimento) {
-                    setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
-                }
+            adicionarMensagem('AETHER', respostaFinal);
+            falar(respostaFinal);
+
+            processandoAudio = false;
+            if (ligacaoContinua && reconhecimento) {
+                setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
             }
         }
 
@@ -439,16 +430,15 @@
                             });
                             lanternaTrack = stream.getVideoTracks()[0];
                             const capabilities = lanternaTrack.getCapabilities();
-                            
                             if (capabilities.torch) {
                                 await lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
                                 adicionarMensagem('AETHER', 'Flash ativado.');
                             } else {
-                                adicionarMensagem('AETHER', 'Sem suporte a Flash.', true);
+                                adicionarMensagem('AETHER', 'Sem suporte a Flash.');
                                 btn.classList.remove('ativo');
                             }
                         } catch (err) {
-                            adicionarMensagem('AETHER', 'Permissão de câmera negada.', true);
+                            adicionarMensagem('AETHER', 'Permissão de câmera negada.');
                             btn.classList.remove('ativo');
                         }
                     } else {
@@ -463,5 +453,5 @@
         }
     </script>
 </body>
-    </html>
-            
+                    </html>
+    
