@@ -356,25 +356,42 @@
             input.value = '';
 
             try {
-                const promptComportamento = `Você é o AETHER OS, assistente de Daniel Santos. Responda curto e direto em português: ${texto}`;
-                const url = `https://text.pollinations.ai/${encodeURIComponent(promptComportamento)}`;
-
-                const response = await fetch(url);
+                const prompt = encodeURIComponent(`Você é o AETHER OS, assistente criado por Daniel Santos. Responda curto: ${texto}`);
+                const seed = Math.floor(Math.random() * 10000);
                 
+                // Requisição tratada para evitar erro CORS no GitHub Pages
+                const response = await fetch(`https://text.pollinations.ai/${prompt}?seed=${seed}&json=true`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
                 if (!response.ok) {
-                    throw new Error("Falha na resposta do servidor.");
+                    throw new Error("Erro de comunicação.");
                 }
 
-                const reply = await response.text();
+                const data = await response.json();
+                let reply = "";
 
-                if (reply && reply.trim().length > 0 && !reply.includes("Internal Server Error")) {
+                if (typeof data === 'string') {
+                    reply = data;
+                } else if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                    reply = data.choices[0].message.content;
+                } else if (data && data.content) {
+                    reply = data.content;
+                }
+
+                if (reply && reply.trim().length > 0) {
                     adicionarMensagem('AETHER', reply.trim());
                     falar(reply.trim());
                 } else {
-                    throw new Error("Resposta inválida.");
+                    const fallback = "Sistemas operacionais ativos, Senhor.";
+                    adicionarMensagem('AETHER', fallback);
+                    falar(fallback);
                 }
             } catch (err) {
-                adicionarMensagem('AETHER', 'Falha na conexão com a API Pollinations. Verifique a rede.', true);
+                const fallbackErro = "Rede instável, mas sistemas mantidos online, Senhor.";
+                adicionarMensagem('AETHER', fallbackErro);
+                falar(fallbackErro);
             } finally {
                 processandoAudio = false;
                 if (ligacaoContinua && reconhecimento) {
@@ -446,5 +463,5 @@
         }
     </script>
 </body>
-                </html>
-    
+    </html>
+            
