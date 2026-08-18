@@ -344,11 +344,11 @@
             input.value = '';
 
             try {
-                // Rota GET direta sem headers para liberar o bloqueio de CORS no navegador
-                const prompt = encodeURIComponent(`Você é o AETHER OS, um assistente futurista avançado. Responda em português: ${texto}`);
-                const url = `https://text.pollinations.ai/${prompt}?cache=false`;
+                // Endpoint ajustado para o modo livre sem preflight de CORS
+                const promptFinal = encodeURIComponent(`Responda em português como AETHER OS: ${texto}`);
+                const url = `https://text.pollinations.ai/${promptFinal}?json=false&cache=false`;
 
-                const response = await fetch(url, { method: 'GET' });
+                const response = await fetch(url, { method: 'GET', mode: 'cors' });
 
                 if (response.ok) {
                     const reply = await response.text();
@@ -359,10 +359,10 @@
                         throw new Error("Resposta vazia");
                     }
                 } else {
-                    throw new Error("Erro de resposta HTTP");
+                    throw new Error("Status " + response.status);
                 }
             } catch (e) {
-                adicionarMensagem('AETHER', "Falha no canal de comunicação. Tente novamente.");
+                adicionarMensagem('AETHER', "Falha de comunicação. Verifique a conexão.");
             } finally {
                 processandoAudio = false;
                 if (ligacaoContinua && reconhecimento) {
