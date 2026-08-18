@@ -91,11 +91,14 @@
         input.value = '';
 
         try {
-            // Rota usando proxy para contornar o bloqueio de CORS do navegador
-            const targetUrl = 'https://text.pollinations.ai/' + encodeURIComponent(texto);
-            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-
-            const response = await fetch(proxyUrl);
+            // Método direto idêntico ao ambiente do CodePen usando fetch simples
+            const prompt = encodeURIComponent(texto);
+            const response = await fetch(`https://text.pollinations.ai/${prompt}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            });
 
             if (response.ok) {
                 const reply = await response.text();
@@ -106,10 +109,10 @@
                     throw new Error("Resposta vazia");
                 }
             } else {
-                throw new Error("Erro HTTP");
+                throw new Error("Erro na rede");
             }
         } catch (e) {
-            adicionarMensagem('AETHER', "Falha no canal de comunicação. Tente novamente.");
+            adicionarMensagem('AETHER', "Servidor indisponível no momento. Tente novamente em instantes.");
         } finally {
             processandoAudio = false;
             if (ligacaoContinua && reconhecimento) {
@@ -179,4 +182,4 @@
         }
     }
 </script>
-        
+            
