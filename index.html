@@ -2,95 +2,87 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AETHER OS</title>
+    <title>AETHER OS | SYSTEM</title>
     <style>
-        :root { --main-color: #00f3ff; --bg-color: #030708; --err-color: #ff0055; --font-mono: 'Courier New', Courier, monospace; }
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        html, body { width: 100%; height: 100%; background-color: var(--bg-color); color: var(--main-color); font-family: var(--font-mono); overflow: hidden; }
-        .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: 10px; gap: 8px; }
-        #chat-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(0, 243, 255, 0.15); padding: 8px; background: rgba(0, 243, 255, 0.02); border-radius: 4px; }
-        .mensagem { font-size: 0.85rem; line-height: 1.3; word-break: break-word; }
-        .input-area { display: flex; gap: 5px; border: 1px solid var(--main-color); padding: 4px; background: rgba(0, 243, 255, 0.05); border-radius: 3px; }
-        input { flex: 1; background: transparent; border: none; color: var(--main-color); font-family: var(--font-mono); outline: none; padding: 6px; }
-        .reatores-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-        .btn-reator { background: rgba(0, 243, 255, 0.03); border: 1px solid var(--main-color); color: var(--main-color); font-size: 0.55rem; padding: 8px 2px; text-align: center; cursor: pointer; }
-        .btn-reator.ativo { background: var(--main-color); color: var(--bg-color); font-weight: bold; }
+        :root { --neon: #00f3ff; --bg: #030506; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; height: 100vh; display: flex; flex-direction: column; }
+
+        /* HEADER & REACTOR */
+        header { border-bottom: 1px solid var(--neon); padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
+        .reactor { width: 80px; height: 80px; border: 2px solid var(--neon); border-radius: 50%; margin: 10px auto; box-shadow: 0 0 15px var(--neon); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 5px var(--neon); } 50% { box-shadow: 0 0 20px var(--neon); } 100% { box-shadow: 0 0 5px var(--neon); } }
+
+        /* TERMINAL */
+        #output { flex-grow: 1; overflow-y: auto; font-size: 0.9rem; margin-bottom: 10px; border: 1px solid #1a2a2b; padding: 10px; background: rgba(0,0,0,0.3); }
+        .log { margin-bottom: 5px; border-bottom: 1px dashed #1a2a2b; padding-bottom: 2px; }
+
+        /* CONTROLS - Estilo Sistema */
+        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        button { background: #000; border: 1px solid var(--neon); color: var(--neon); padding: 10px 5px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; }
+        button:active { background: var(--neon); color: #000; }
+        input { background: #000; border: 1px solid var(--neon); color: #fff; width: 100%; padding: 10px; box-sizing: border-box; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <header><div class="logo">AETHER OS</div></header>
-        <div id="chat-container"></div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Inserir diretriz..." onkeypress="if(event.key==='Enter') enviarMensagem()">
-            <button class="btn-send" onclick="enviarMensagem()">>></button>
-        </div>
-        <div class="reatores-grid">
-            <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">Voz</button>
-            <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">Lig. Cont.</button>
-            <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">Limpar</button>
-            <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">Flash</button>
-        </div>
+
+    <header>AETHER OS v2.0</header>
+    <div class="reactor"></div>
+    
+    <div id="output">
+        <div class="log">>> SISTEMA PRONTO.</div>
+    </div>
+
+    <input type="text" id="cmd" placeholder="DIGITE COMANDO OU PERGUNTA...">
+    
+    <div class="controls">
+        <button onclick="send()">ENVIAR</button>
+        <button onclick="clearLog()">LIMPAR</button>
+        <button onclick="toggleFlash()">FLASH</button>
+        <button onclick="toggleVoice()">VOZ</button>
     </div>
 
     <script>
-        let vozAtiva = false, ligacaoContinua = false, processando = false;
-        
-        async function conectarIA(texto) {
-            // TENTATIVA 1: POLLINATIONS
-            try {
-                const res1 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(texto)}?seed=${Math.floor(Math.random()*9999)}`);
-                if(res1.ok) return await res1.text();
-            } catch(e) {}
+        // LÓGICA DE CHAT
+        async function send() {
+            const input = document.getElementById('cmd');
+            const output = document.getElementById('output');
+            const msg = input.value;
+            if(!msg) return;
 
-            // TENTATIVA 2: POPCAT (Backup sem trava)
-            try {
-                const res2 = await fetch(`https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(texto)}`);
-                const json2 = await res2.json();
-                return json2.response;
-            } catch(e) {
-                return "Sistemas operacionais sobrecarregados. O canal principal de comunicação está offline, Senhor.";
-            }
-        }
-
-        async function enviarMensagem() {
-            const input = document.getElementById('userInput');
-            const texto = input.value.trim();
-            if (!texto || processando) return;
-            
-            processando = true;
-            adicionarMsg('SENHOR', texto);
+            output.innerHTML += `<div class="log" style="color:#fff">> ${msg}</div>`;
             input.value = '';
+            output.innerHTML += `<div class="log">> Processando...</div>`;
 
-            const resposta = await conectarIA(texto);
-            adicionarMsg('AETHER', resposta);
-            if(vozAtiva) falar(resposta);
-            
-            processando = false;
+            try {
+                // Requisição robusta
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(msg)}?seed=${Date.now()}`);
+                const data = await res.text();
+                
+                // Remove o "Processando..." e mostra a resposta
+                output.lastElementChild.remove();
+                output.innerHTML += `<div class="log" style="color:var(--neon)">>> AETHER: ${data}</div>`;
+            } catch(e) {
+                output.lastElementChild.remove();
+                output.innerHTML += `<div class="log" style="color:red">>> ERRO: FALHA NA REDE.</div>`;
+            }
+            output.scrollTop = output.scrollHeight;
         }
 
-        function adicionarMsg(autor, txt) {
-            const div = document.createElement('div');
-            div.className = 'mensagem';
-            div.innerText = `>> ${autor}: ${txt}`;
-            document.getElementById('chat-container').appendChild(div);
+        // FUNÇÕES DE SISTEMA
+        function clearLog() { document.getElementById('output').innerHTML = ''; }
+        
+        function toggleFlash() {
+            // Flash simples
+            document.body.style.filter = "invert(1)";
+            setTimeout(() => document.body.style.filter = "invert(0)", 200);
         }
 
-        function falar(t) {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(t);
-            u.lang = 'pt-BR';
-            window.speechSynthesis.speak(u);
-        }
-
-        function toggleReator(n) {
-            const b = document.getElementById('reator-'+n);
-            b.classList.toggle('ativo');
-            if(n===1) vozAtiva = b.classList.contains('ativo');
-            if(n===3) document.getElementById('chat-container').innerHTML = '';
+        function toggleVoice() {
+            const synth = window.speechSynthesis;
+            if(synth.speaking) synth.cancel();
+            else alert("Sintetizador pronto.");
         }
     </script>
 </body>
-                </html>
+    </html>
     
