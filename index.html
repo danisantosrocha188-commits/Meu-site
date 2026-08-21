@@ -4,439 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AETHER OS</title>
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        :root {
-            --main-color: #00f3ff;
-            --bg-color: #030708;
-            --font-mono: 'Courier New', Courier, monospace;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            color: var(--main-color);
-            font-family: var(--font-mono);
-            overflow: hidden;
-        }
-
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: 100dvh;
-            padding: 10px;
-            gap: 8px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.4);
-            padding-bottom: 5px;
-            height: 45px;
-            flex-shrink: 0;
-        }
-
-        .logo {
-            font-size: 1.2rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--main-color);
-        }
-
-        #globoCanvas {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border: 1px solid rgba(0, 243, 255, 0.15);
-            padding: 8px;
-            background: rgba(0, 243, 255, 0.02);
-            border-radius: 4px;
-        }
-
-        .mensagem {
-            font-size: 0.85rem;
-            line-height: 1.3;
-            word-break: break-word;
-        }
-
-        .center-reactor {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px 0;
-            flex-shrink: 0;
-        }
-
-        .reactor-box {
-            position: relative;
-            width: 75px;
-            height: 75px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .ring-1 {
-            position: absolute;
-            width: 75px;
-            height: 75px;
-            border: 2px dashed var(--main-color);
-            border-radius: 50%;
-            animation: spin 8s linear infinite;
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
-        }
-
-        .ring-2 {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            border: 2px solid var(--main-color);
-            border-top: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin-reverse 4s linear infinite;
-        }
-
-        .ring-3 {
-            position: absolute;
-            width: 35px;
-            height: 35px;
-            border: 1px dashed rgba(0, 243, 255, 0.8);
-            border-radius: 50%;
-            animation: spin 3s linear infinite;
-        }
-
-        .core-dot {
-            width: 16px;
-            height: 16px;
-            background-color: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--main-color), 0 0 30px var(--main-color);
-            animation: pulse 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.7; }
-            100% { transform: scale(1.15); opacity: 1; }
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.6rem;
-            opacity: 0.8;
-            flex-shrink: 0;
-        }
-
-        .bottom-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 5px;
-            border: 1px solid var(--main-color);
-            padding: 4px;
-            background: rgba(0, 243, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--main-color);
-            font-family: var(--font-mono);
-            outline: none;
-            padding: 6px;
-            font-size: 0.85rem;
-        }
-
-        button.btn-send {
-            background: transparent;
-            border: 1px solid var(--main-color);
-            color: var(--main-color);
-            padding: 5px 15px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .reatores-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-        }
-
-        .btn-reator {
-            background: rgba(0, 243, 255, 0.03);
-            border: 1px solid var(--main-color);
-            color: var(--main-color);
-            font-size: 0.55rem;
-            padding: 8px 2px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .btn-reator.ativo {
-            background: var(--main-color);
-            color: var(--bg-color);
-            font-weight: bold;
-            box-shadow: 0 0 10px var(--main-color);
-        }
+        :root { --main-color: #00f3ff; --bg-color: #030708; --err-color: #ff0055; --font-mono: 'Courier New', Courier, monospace; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        html, body { width: 100%; height: 100%; background-color: var(--bg-color); color: var(--main-color); font-family: var(--font-mono); overflow: hidden; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: 10px; gap: 8px; }
+        #chat-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(0, 243, 255, 0.15); padding: 8px; background: rgba(0, 243, 255, 0.02); border-radius: 4px; }
+        .mensagem { font-size: 0.85rem; line-height: 1.3; word-break: break-word; }
+        .input-area { display: flex; gap: 5px; border: 1px solid var(--main-color); padding: 4px; background: rgba(0, 243, 255, 0.05); border-radius: 3px; }
+        input { flex: 1; background: transparent; border: none; color: var(--main-color); font-family: var(--font-mono); outline: none; padding: 6px; }
+        .reatores-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .btn-reator { background: rgba(0, 243, 255, 0.03); border: 1px solid var(--main-color); color: var(--main-color); font-size: 0.55rem; padding: 8px 2px; text-align: center; cursor: pointer; }
+        .btn-reator.ativo { background: var(--main-color); color: var(--bg-color); font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="app-container">
-        <header>
-            <div class="logo">AETHER OS</div>
-            <canvas id="globoCanvas"></canvas>
-        </header>
-
-        <div id="chat-container">
-            <div class="mensagem">>> AETHER: Sistemas operacionais prontos. Como posso ajudar, Senhor?</div>
+        <header><div class="logo">AETHER OS</div></header>
+        <div id="chat-container"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Inserir diretriz..." onkeypress="if(event.key==='Enter') enviarMensagem()">
+            <button class="btn-send" onclick="enviarMensagem()">>></button>
         </div>
-
-        <div class="center-reactor">
-            <div class="reactor-box">
-                <div class="ring-1"></div>
-                <div class="ring-2"></div>
-                <div class="ring-3"></div>
-                <div class="core-dot"></div>
-            </div>
-        </div>
-
-        <div class="stats">
-            <div>NUCLEO: 100% | TENSAO: 14.4V</div>
-            <div style="text-align: right;">SISTEMA: HF ENGINE | STATUS: ONLINE</div>
-        </div>
-
-        <div class="bottom-panel">
-            <div class="input-area">
-                <input type="text" id="userInput" placeholder="Inserir diretriz..." onkeypress="handleKeyPress(event)">
-                <button class="btn-send" onclick="enviarMensagem()">>></button>
-            </div>
-
-            <div class="reatores-grid">
-                <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">REATOR 01<br>Voz</button>
-                <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">REATOR 02<br>Ligação Cont.</button>
-                <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">REATOR 03<br>Limpar Tela</button>
-                <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">REATOR 04<br>Flash Fast</button>
-            </div>
+        <div class="reatores-grid">
+            <button class="btn-reator" id="reator-1" onclick="toggleReator(1)">Voz</button>
+            <button class="btn-reator" id="reator-2" onclick="toggleReator(2)">Lig. Cont.</button>
+            <button class="btn-reator" id="reator-3" onclick="toggleReator(3)">Limpar</button>
+            <button class="btn-reator" id="reator-4" onclick="toggleReator(4)">Flash</button>
         </div>
     </div>
 
     <script>
-        let lanternaTrack = null;
-        let vozAtiva = false;
-        let ligacaoContinua = false;
-        let reconhecimento = null;
-        let processandoAudio = false;
+        let vozAtiva = false, ligacaoContinua = false, processando = false;
+        
+        async function conectarIA(texto) {
+            // TENTATIVA 1: POLLINATIONS
+            try {
+                const res1 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(texto)}?seed=${Math.floor(Math.random()*9999)}`);
+                if(res1.ok) return await res1.text();
+            } catch(e) {}
 
-        const canvas = document.getElementById('globoCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 40;
-        canvas.height = 40;
-        let angle = 0;
-
-        function drawGlobo() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const cx = canvas.width / 2;
-            const cy = canvas.height / 2;
-            const r = 16;
-
-            ctx.strokeStyle = '#00f3ff';
-            ctx.lineWidth = 1;
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, r * Math.abs(Math.cos(angle)), r, angle / 2, 0, Math.PI * 2);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, r, r * Math.abs(Math.sin(angle)), -angle / 2, 0, Math.PI * 2);
-            ctx.stroke();
-
-            angle += 0.025;
-            requestAnimationFrame(drawGlobo);
-        }
-        drawGlobo();
-
-        function falar(texto) {
-            if (!vozAtiva || !('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(texto);
-            utterance.lang = 'pt-BR';
-            utterance.pitch = 0.9;
-            utterance.rate = 1.0;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            reconhecimento = new SpeechRecognition();
-            reconhecimento.lang = 'pt-BR';
-            reconhecimento.continuous = false;
-
-            reconhecimento.onresult = (event) => {
-                const textoOuvido = event.results[0][0].transcript;
-                document.getElementById('userInput').value = textoOuvido;
-                processandoAudio = true;
-                enviarMensagem();
-            };
-
-            reconhecimento.onend = () => {
-                if (ligacaoContinua && !processandoAudio) {
-                    setTimeout(() => { 
-                        if (ligacaoContinua) try { reconhecimento.start(); } catch(e){} 
-                    }, 500);
-                }
-            };
-        }
-
-        function adicionarMensagem(autor, texto) {
-            const container = document.getElementById('chat-container');
-            const div = document.createElement('div');
-            div.className = 'mensagem';
-            div.innerText = `>> ${autor}: ${texto}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function obterRespostaIA(promptUsuario) {
-            const promptAether = `Você é o AETHER OS, um assistente futurista avançado. Responda de forma direta e concisa em português: ${promptUsuario}`;
-            
-            const url = `https://text.pollinations.ai/${encodeURIComponent(promptAether)}`;
-            
-            const response = await fetch(url, {
-                method: "GET"
-            });
-
-            if (!response.ok) {
-                throw new Error("Falha na conexão com o servidor da IA");
+            // TENTATIVA 2: POPCAT (Backup sem trava)
+            try {
+                const res2 = await fetch(`https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(texto)}`);
+                const json2 = await res2.json();
+                return json2.response;
+            } catch(e) {
+                return "Sistemas operacionais sobrecarregados. O canal principal de comunicação está offline, Senhor.";
             }
-
-            const textoResposta = await response.text();
-            return textoResposta.trim();
         }
 
         async function enviarMensagem() {
             const input = document.getElementById('userInput');
             const texto = input.value.trim();
-            if (!texto) {
-                processandoAudio = false;
-                return;
-            }
-
-            adicionarMensagem('SENHOR', texto);
+            if (!texto || processando) return;
+            
+            processando = true;
+            adicionarMsg('SENHOR', texto);
             input.value = '';
 
-            try {
-                const reply = await obterRespostaIA(texto);
-                adicionarMensagem('AETHER', reply);
-                falar(reply);
-            } catch (e) {
-                const respostaBackup = "Sistemas offline ou indisponíveis no momento. Tente novamente em instantes.";
-                adicionarMensagem('AETHER', respostaBackup);
-                falar(respostaBackup);
-            } finally {
-                processandoAudio = false;
-                if (ligacaoContinua && reconhecimento) {
-                    setTimeout(() => { try { reconhecimento.start(); } catch(e){} }, 1000);
-                }
-            }
+            const resposta = await conectarIA(texto);
+            adicionarMsg('AETHER', resposta);
+            if(vozAtiva) falar(resposta);
+            
+            processando = false;
         }
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') enviarMensagem();
+        function adicionarMsg(autor, txt) {
+            const div = document.createElement('div');
+            div.className = 'mensagem';
+            div.innerText = `>> ${autor}: ${txt}`;
+            document.getElementById('chat-container').appendChild(div);
         }
 
-        async function toggleReator(n) {
-            const btn = document.getElementById('reator-' + n);
-            if (!btn) return;
-            btn.classList.toggle('ativo');
-            const ativo = btn.classList.contains('ativo');
+        function falar(t) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'pt-BR';
+            window.speechSynthesis.speak(u);
+        }
 
-            switch (n) {
-                case 1:
-                    vozAtiva = ativo;
-                    adicionarMensagem('AETHER', ativo ? 'Voz ativada.' : 'Voz desativada.');
-                    if (ativo) falar("Sintetizador de voz ativado.");
-                    break;
-                case 2:
-                    ligacaoContinua = ativo;
-                    if (ativo) {
-                        adicionarMensagem('AETHER', 'Escuta contínua ativada.');
-                        if (reconhecimento) try { reconhecimento.start(); } catch(e){}
-                    } else {
-                        adicionarMensagem('AETHER', 'Escuta contínua desativada.');
-                        if (reconhecimento) try { reconhecimento.stop(); } catch(e){}
-                    }
-                    break;
-                case 3:
-                    document.getElementById('chat-container').innerHTML = '';
-                    btn.classList.remove('ativo');
-                    adicionarMensagem('AETHER', 'Tela limpa, Senhor.');
-                    break;
-                case 4:
-                    if (ativo) {
-                        try {
-                            const stream = await navigator.mediaDevices.getUserMedia({
-                                video: { facingMode: 'environment' }
-                            });
-                            lanternaTrack = stream.getVideoTracks()[0];
-                            const capabilities = lanternaTrack.getCapabilities();
-                            if (capabilities.torch) {
-                                await lanternaTrack.applyConstraints({ advanced: [{ torch: true }] });
-                                adicionarMensagem('AETHER', 'Flash ativado.');
-                            } else {
-                                adicionarMensagem('AETHER', 'Sem suporte a Flash.');
-                                btn.classList.remove('ativo');
-                            }
-                        } catch (err) {
-                            adicionarMensagem('AETHER', 'Permissão de câmera negada.');
-                            btn.classList.remove('ativo');
-                        }
-                    } else {
-                        if (lanternaTrack) {
-                            lanternaTrack.stop();
-                            lanternaTrack = null;
-                        }
-                        adicionarMensagem('AETHER', 'Flash desligado.');
-                    }
-                    break;
-            }
+        function toggleReator(n) {
+            const b = document.getElementById('reator-'+n);
+            b.classList.toggle('ativo');
+            if(n===1) vozAtiva = b.classList.contains('ativo');
+            if(n===3) document.getElementById('chat-container').innerHTML = '';
         }
     </script>
 </body>
-    </html>
+                </html>
     
